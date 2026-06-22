@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { MapPin, Calendar, ShieldCheck, Package, Factory, Truck, MessageSquare } from 'lucide-react'
+import { MapPin, Calendar, ShieldCheck, Package, Factory, Truck, MessageSquare, Settings, Plus, Edit } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Avatar from '@/components/ui/Avatar'
@@ -83,6 +83,13 @@ export default function ProfilePage() {
                   {profile.userType === 'GENERATOR' ? 'Generator otpada' : 'Sakupljač otpada'}
                 </Badge>
               </div>
+              {isOwnProfile && (
+                <div className="ml-auto">
+                  <Link href="/podesavanja" className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors">
+                    <Settings size={16} /> Izmeni profil
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -109,17 +116,43 @@ export default function ProfilePage() {
             </div>
 
             <div className="lg:col-span-2">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Oglasi ({listings.length})</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">
+                  {isOwnProfile ? 'Moji oglasi' : 'Oglasi'} ({listings.length})
+                </h2>
+                {isOwnProfile && profile.userType === 'GENERATOR' && (
+                  <Link href="/oglasi/novi" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700">
+                    <Plus size={16} /> Novi oglas
+                  </Link>
+                )}
+              </div>
               {listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {listings.map((listing: any) => (
-                    <ListingCard key={listing.id} listing={listing} />
+                    <div key={listing.id} className="relative">
+                      <ListingCard listing={listing} />
+                      {isOwnProfile && (
+                        <Link
+                          href={`/oglasi/${listing.id}/izmeni`}
+                          className="absolute top-3 right-3 z-10 p-2 bg-white rounded-xl shadow-md border border-gray-200 text-gray-600 hover:text-primary-600 hover:border-primary-300 transition-colors"
+                        >
+                          <Edit size={16} />
+                        </Link>
+                      )}
+                    </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-2xl">
                   <Package size={40} className="text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">Nema aktivnih oglasa</p>
+                  <p className="text-gray-500 text-sm">
+                    {isOwnProfile ? 'Nemate aktivnih oglasa' : 'Nema aktivnih oglasa'}
+                  </p>
+                  {isOwnProfile && profile.userType === 'GENERATOR' && (
+                    <Link href="/oglasi/novi" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 mt-3">
+                      <Plus size={16} /> Postavite prvi oglas
+                    </Link>
+                  )}
                 </div>
               )}
             </div>

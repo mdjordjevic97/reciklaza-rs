@@ -14,7 +14,9 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') || '1')
   const limit = 12
 
-  const where: Record<string, unknown> = { status: 'ACTIVE' }
+  const userId = searchParams.get('userId')
+
+  const where: Record<string, unknown> = userId ? { userId } : { status: 'ACTIVE' }
   if (category) where.wasteCategory = category
   if (city) where.city = city
   if (userType) where.user = { userType }
