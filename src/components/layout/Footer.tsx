@@ -30,9 +30,8 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Informacije</h3>
             <ul className="space-y-2.5">
-              <li><span className="text-sm text-gray-400">Uslovi korišćenja</span></li>
-              <li><span className="text-sm text-gray-400">Politika privatnosti</span></li>
-              <li><span className="text-sm text-gray-400">Česta pitanja</span></li>
+              <li><Link href="/uslovi-koriscenja" className="text-sm text-gray-400 hover:text-primary-400 transition-colors">Uslovi korišćenja</Link></li>
+              <li><Link href="/politika-privatnosti" className="text-sm text-gray-400 hover:text-primary-400 transition-colors">Politika privatnosti</Link></li>
             </ul>
           </div>
 

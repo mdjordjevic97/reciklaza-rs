@@ -173,7 +173,8 @@ export default function ListingForm({ initialData }: ListingFormProps) {
           />
           <div className="mt-6">
             <Button onClick={() => { router.push(`/oglasi/${createdId}`); router.refresh() }} size="lg">
-              {isEdit ? 'Nazad na oglas' : 'Završi i objavi oglas'}
+              <Save size={18} />
+              {isEdit ? 'Sačuvaj promene' : 'Završi i objavi oglas'}
             </Button>
           </div>
         </div>
