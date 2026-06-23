@@ -44,10 +44,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         description: sanitizeText(data.description),
         wasteIndexNumber: data.wasteIndexNumber,
         wasteCategory: data.wasteCategory,
+        wasteSubcategory: data.wasteSubcategory || null,
+        isHazardous: data.isHazardous,
         quantity: data.quantity,
         unit: data.unit,
         pricePerUnit: data.pricePerUnit,
-        city: data.city,
+        municipality: data.municipality,
         address: data.address ? sanitizeText(data.address) : null,
       },
     })

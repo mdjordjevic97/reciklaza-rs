@@ -26,6 +26,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isValid) return null
 
+        if (!user.emailVerified) {
+          throw new Error('EMAIL_NOT_VERIFIED')
+        }
+
+        if (!user.verified && !user.isAdmin) {
+          throw new Error('NOT_APPROVED')
+        }
+
         return {
           id: user.id,
           email: user.email,
@@ -34,6 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           userType: user.userType,
           companyName: user.companyName,
           verified: user.verified,
+          isAdmin: user.isAdmin,
         }
       },
     }),
@@ -49,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userType = (user as any).userType
         token.companyName = (user as any).companyName
         token.verified = (user as any).verified
+        token.isAdmin = (user as any).isAdmin
       }
       return token
     },
@@ -58,12 +68,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.userType = token.userType as string
         session.user.companyName = token.companyName as string
         session.user.verified = token.verified as boolean
+        session.user.isAdmin = token.isAdmin as boolean
       }
       return session
     },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const publicPaths = ['/', '/prijava', '/registracija']
+      const publicPaths = ['/', '/prijava', '/registracija', '/verifikacija-emaila', '/zaboravljena-lozinka', '/resetuj-lozinku', '/cekanje-odobrenja']
       const isPublic = publicPaths.includes(nextUrl.pathname)
 
       if (!isLoggedIn && !isPublic) {
@@ -71,6 +82,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (isLoggedIn && (nextUrl.pathname === '/prijava' || nextUrl.pathname === '/registracija')) {
+        return Response.redirect(new URL('/oglasi', nextUrl.origin))
+      }
+
+      if (nextUrl.pathname.startsWith('/admin') && !auth?.user?.isAdmin) {
         return Response.redirect(new URL('/oglasi', nextUrl.origin))
       }
 

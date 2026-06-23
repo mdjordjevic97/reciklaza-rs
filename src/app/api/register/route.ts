@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, LIMITS } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/utils/sanitize'
+import { generateCode, sendVerificationEmail } from '@/lib/email'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
@@ -69,6 +70,8 @@ export async function POST(request: Request) {
         contactPerson,
         phone,
         userType,
+        emailVerified: false,
+        verified: false,
       },
     })
 
@@ -93,7 +96,32 @@ export async function POST(request: Request) {
       })
     }
 
-    return NextResponse.json({ success: true, userId: user.id }, { status: 201 })
+    const code = generateCode()
+    await prisma.verificationCode.create({
+      data: {
+        email,
+        code,
+        type: 'EMAIL_VERIFY',
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    })
+
+    try {
+      await sendVerificationEmail(email, code)
+    } catch (emailError) {
+      console.error('Email send error:', emailError)
+    }
+
+    await prisma.adminNotification.create({
+      data: {
+        type: 'NEW_USER',
+        title: 'Nova registracija',
+        message: `${companyName} (${userType === 'GENERATOR' ? 'Generator' : 'Sakupljač'}) iz grada ${city} se registrovao/la. PIB: ${pib}. Čeka verifikaciju.`,
+        data: JSON.stringify({ userId: user.id, companyName, pib, city, userType }),
+      },
+    })
+
+    return NextResponse.json({ success: true, userId: user.id, email }, { status: 201 })
   } catch (error) {
     console.error('Registration error:', error)
     return NextResponse.json({ error: 'Došlo je do greške pri registraciji.' }, { status: 500 })

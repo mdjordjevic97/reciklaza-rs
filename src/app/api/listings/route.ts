@@ -8,18 +8,20 @@ import { listingSchema } from '@/lib/validations/listing'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
-  const city = searchParams.get('city')
+  const subcategory = searchParams.get('subcategory')
+  const municipality = searchParams.get('municipality')
+  const hazardous = searchParams.get('hazardous')
   const search = searchParams.get('search')
-  const userType = searchParams.get('userType')
+  const userId = searchParams.get('userId')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = 12
 
-  const userId = searchParams.get('userId')
-
   const where: Record<string, unknown> = userId ? { userId } : { status: 'ACTIVE' }
   if (category) where.wasteCategory = category
-  if (city) where.city = city
-  if (userType) where.user = { userType }
+  if (subcategory) where.wasteSubcategory = subcategory
+  if (municipality) where.municipality = municipality
+  if (hazardous === 'true') where.isHazardous = true
+  if (hazardous === 'false') where.isHazardous = false
   if (search) {
     where.OR = [
       { title: { contains: search } },
@@ -71,11 +73,22 @@ export async function POST(request: Request) {
         description: sanitizeText(data.description),
         wasteIndexNumber: data.wasteIndexNumber,
         wasteCategory: data.wasteCategory,
+        wasteSubcategory: data.wasteSubcategory || null,
+        isHazardous: data.isHazardous,
         quantity: data.quantity,
         unit: data.unit,
         pricePerUnit: data.pricePerUnit,
-        city: data.city,
+        municipality: data.municipality,
         address: data.address ? sanitizeText(data.address) : null,
+      },
+    })
+
+    await prisma.adminNotification.create({
+      data: {
+        type: 'NEW_LISTING',
+        title: 'Novi oglas',
+        message: `${session.user.companyName} je objavio/la novi oglas: "${sanitizeText(data.title)}" (${data.wasteIndexNumber}) u opštini ${data.municipality}.${data.isHazardous ? ' ⚠️ OPASAN OTPAD' : ''}`,
+        data: JSON.stringify({ listingId: listing.id, userId: session.user.id, title: data.title }),
       },
     })
 

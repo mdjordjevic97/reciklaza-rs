@@ -5,10 +5,12 @@ export const listingSchema = z.object({
   description: z.string().min(20, 'Opis mora imati najmanje 20 karaktera').max(2000).trim(),
   wasteIndexNumber: z.string().min(1, 'Indeksni broj otpada je obavezan'),
   wasteCategory: z.string().min(1, 'Kategorija otpada je obavezna'),
+  wasteSubcategory: z.string().nullable().optional(),
+  isHazardous: z.boolean(),
   quantity: z.number().positive('Količina mora biti pozitivan broj'),
   unit: z.enum(['kg', 'tona', 'm3', 'komad', 'litar']),
   pricePerUnit: z.number().positive().nullable(),
-  city: z.string().min(1, 'Grad je obavezan'),
+  municipality: z.string().min(1, 'Opština je obavezna'),
   address: z.string().optional(),
 })
 

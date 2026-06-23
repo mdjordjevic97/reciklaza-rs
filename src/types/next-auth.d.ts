@@ -10,6 +10,7 @@ declare module 'next-auth' {
       userType: string
       companyName: string
       verified: boolean
+      isAdmin: boolean
     }
   }
 }
@@ -20,5 +21,6 @@ declare module 'next-auth/jwt' {
     userType: string
     companyName: string
     verified: boolean
+    isAdmin: boolean
   }
 }

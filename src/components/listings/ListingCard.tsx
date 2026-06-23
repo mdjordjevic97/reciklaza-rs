@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { MapPin, Eye, Calendar, Package } from 'lucide-react'
+import { MapPin, Eye, Calendar, Package, AlertTriangle } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import { formatPrice, formatRelativeTime, formatQuantity } from '@/lib/utils/format'
+import { getCategoryLabel } from '@/lib/constants/waste-categories'
 
 type ListingCardProps = {
   listing: {
@@ -9,10 +10,12 @@ type ListingCardProps = {
     title: string
     wasteIndexNumber: string
     wasteCategory: string
+    wasteSubcategory?: string | null
+    isHazardous?: boolean
     quantity: number
     unit: string
     pricePerUnit: number | null
-    city: string
+    municipality: string
     viewsCount: number
     createdAt: string
     user: { companyName: string; userType: string; verified: boolean }
@@ -22,6 +25,7 @@ type ListingCardProps = {
 
 export default function ListingCard({ listing }: ListingCardProps) {
   const image = listing.images[0]?.imageUrl
+  const subLabel = listing.wasteSubcategory ? getCategoryLabel(listing.wasteSubcategory) : getCategoryLabel(listing.wasteCategory)
 
   return (
     <Link
@@ -36,10 +40,12 @@ export default function ListingCard({ listing }: ListingCardProps) {
             <Package size={40} className="text-gray-300" />
           </div>
         )}
-        <div className="absolute top-3 left-3">
-          <Badge variant={listing.user.userType === 'GENERATOR' ? 'warning' : 'success'}>
-            {listing.user.userType === 'GENERATOR' ? 'Generator' : 'Sakupljač'}
-          </Badge>
+        <div className="absolute top-3 left-3 flex gap-1.5">
+          {listing.isHazardous && (
+            <Badge variant="danger">
+              <AlertTriangle size={10} className="mr-0.5" /> Opasan
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -49,8 +55,10 @@ export default function ListingCard({ listing }: ListingCardProps) {
         </h3>
 
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-          <span className="bg-gray-100 px-2 py-0.5 rounded-md font-mono">{listing.wasteIndexNumber}</span>
-          <span className="truncate">{listing.wasteCategory}</span>
+          <span className="bg-gray-100 px-2 py-0.5 rounded-md">{subLabel}</span>
+          {listing.wasteIndexNumber && (
+            <span className="font-mono text-gray-400">{listing.wasteIndexNumber}</span>
+          )}
         </div>
 
         <div className="flex items-center justify-between mb-3">
@@ -65,7 +73,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
         <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1">
             <MapPin size={12} />
-            <span>{listing.city}</span>
+            <span>{listing.municipality}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1"><Eye size={12} /> {listing.viewsCount}</span>

@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Loader2 } from 'lucide-react'
+import { Save } from 'lucide-react'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
 import ImageUploader from './ImageUploader'
 import { wasteCategories } from '@/lib/constants/waste-categories'
-import { serbianCities } from '@/lib/constants/serbian-cities'
+import { serbianMunicipalities } from '@/lib/constants/serbian-cities'
 import { units } from '@/lib/constants/units'
 
 type ListingFormProps = {
@@ -19,10 +19,12 @@ type ListingFormProps = {
     description: string
     wasteIndexNumber: string
     wasteCategory: string
+    wasteSubcategory: string | null
+    isHazardous: boolean
     quantity: number
     unit: string
     pricePerUnit: number | null
-    city: string
+    municipality: string
     address: string | null
     images?: { id: string; imageUrl: string }[]
   }
@@ -41,18 +43,27 @@ export default function ListingForm({ initialData }: ListingFormProps) {
     description: initialData?.description || '',
     wasteIndexNumber: initialData?.wasteIndexNumber || '',
     wasteCategory: initialData?.wasteCategory || '',
+    wasteSubcategory: initialData?.wasteSubcategory || '',
+    isHazardous: initialData?.isHazardous ?? false,
     quantity: initialData?.quantity?.toString() || '',
     unit: initialData?.unit || 'kg',
     pricePerUnit: initialData?.pricePerUnit?.toString() || '',
     negotiable: initialData?.pricePerUnit === null,
-    city: initialData?.city || '',
+    municipality: initialData?.municipality || '',
     address: initialData?.address || '',
   })
 
   const update = (field: string, value: string | boolean) => {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm(prev => {
+      const next = { ...prev, [field]: value }
+      if (field === 'wasteCategory') next.wasteSubcategory = ''
+      return next
+    })
     setError('')
   }
+
+  const selectedCategory = wasteCategories.find(c => c.value === form.wasteCategory)
+  const subcategories = selectedCategory?.subcategories || []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,10 +75,12 @@ export default function ListingForm({ initialData }: ListingFormProps) {
       description: form.description,
       wasteIndexNumber: form.wasteIndexNumber,
       wasteCategory: form.wasteCategory,
+      wasteSubcategory: form.wasteSubcategory || null,
+      isHazardous: form.isHazardous,
       quantity: parseFloat(form.quantity),
       unit: form.unit,
       pricePerUnit: form.negotiable ? null : parseFloat(form.pricePerUnit) || null,
-      city: form.city,
+      municipality: form.municipality,
       address: form.address || undefined,
     }
 
@@ -109,15 +122,45 @@ export default function ListingForm({ initialData }: ListingFormProps) {
         <Textarea id="description" label="Opis *" placeholder="Opišite detaljno vrstu otpada, stanje, količinu..." rows={5} value={form.description} onChange={e => update('description', e.target.value)} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input id="wasteIndexNumber" label="Indeksni broj otpada *" placeholder="npr. 15 01 02" value={form.wasteIndexNumber} onChange={e => update('wasteIndexNumber', e.target.value)} />
           <Select
             id="wasteCategory"
             label="Kategorija otpada *"
             placeholder="Izaberite kategoriju"
-            options={wasteCategories.map(c => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
+            options={wasteCategories.map(c => ({ value: c.value, label: c.label }))}
             value={form.wasteCategory}
             onChange={e => update('wasteCategory', e.target.value)}
           />
+          {subcategories.length > 0 && (
+            <Select
+              id="wasteSubcategory"
+              label="Podkategorija"
+              placeholder="Izaberite podkategoriju"
+              options={subcategories.map(s => ({ value: s.value, label: s.label }))}
+              value={form.wasteSubcategory}
+              onChange={e => update('wasteSubcategory', e.target.value)}
+            />
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input id="wasteIndexNumber" label="Indeksni broj otpada" placeholder="npr. 15 01 02" value={form.wasteIndexNumber} onChange={e => update('wasteIndexNumber', e.target.value)} />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Vrsta otpada *</label>
+            <div className="flex gap-4 mt-2">
+              <label className={`flex-1 flex items-center justify-center gap-2 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                !form.isHazardous ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'
+              }`}>
+                <input type="radio" name="hazardous" checked={!form.isHazardous} onChange={() => update('isHazardous', false)} className="sr-only" />
+                <span className="text-sm font-medium">Neopasan</span>
+              </label>
+              <label className={`flex-1 flex items-center justify-center gap-2 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                form.isHazardous ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'
+              }`}>
+                <input type="radio" name="hazardous" checked={form.isHazardous} onChange={() => update('isHazardous', true)} className="sr-only" />
+                <span className="text-sm font-medium">Opasan</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -144,12 +187,12 @@ export default function ListingForm({ initialData }: ListingFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Select
-            id="city"
-            label="Grad *"
-            placeholder="Izaberite grad"
-            options={serbianCities.map(c => ({ value: c, label: c }))}
-            value={form.city}
-            onChange={e => update('city', e.target.value)}
+            id="municipality"
+            label="Opština *"
+            placeholder="Izaberite opštinu"
+            options={serbianMunicipalities.map(c => ({ value: c, label: c }))}
+            value={form.municipality}
+            onChange={e => update('municipality', e.target.value)}
           />
           <Input id="address" label="Adresa (opciono)" placeholder="Ulica i broj" value={form.address} onChange={e => update('address', e.target.value)} />
         </div>
@@ -167,10 +210,7 @@ export default function ListingForm({ initialData }: ListingFormProps) {
       {showUploader && createdId && (
         <div className="border-t border-gray-200 pt-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Dodajte slike</h3>
-          <ImageUploader
-            listingId={createdId}
-            existingImages={initialData?.images}
-          />
+          <ImageUploader listingId={createdId} existingImages={initialData?.images} />
           <div className="mt-6">
             <Button onClick={() => { router.push(`/oglasi/${createdId}`); router.refresh() }} size="lg">
               <Save size={18} />

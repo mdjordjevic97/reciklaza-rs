@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, Recycle, Plus, MessageSquare, User, LogOut, Settings, ChevronDown, Users } from 'lucide-react'
+import { Menu, X, Recycle, Plus, MessageSquare, User, LogOut, Settings, ChevronDown, Users, Shield } from 'lucide-react'
 import Avatar from '../ui/Avatar'
 
 export default function Navbar() {
@@ -16,12 +16,32 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path
 
   const isGenerator = session?.user?.userType === 'GENERATOR'
+  const [unreadMessages, setUnreadMessages] = useState(0)
+
+  useEffect(() => {
+    if (!session?.user) return
+    const fetchUnread = () => {
+      fetch('/api/conversations')
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const total = data.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0)
+            setUnreadMessages(total)
+          }
+        })
+        .catch(() => {})
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 10000)
+    return () => clearInterval(interval)
+  }, [session?.user])
 
   const navLinks = [
-    { href: '/oglasi', label: 'Oglasi' },
-    ...(isGenerator ? [{ href: '/oglasi/novi', label: 'Postavi oglas', icon: Plus }] : []),
-    { href: '/korisnici', label: 'Korisnici', icon: Users },
-    { href: '/poruke', label: 'Poruke', icon: MessageSquare },
+    { href: '/oglasi', label: 'Oglasi', icon: undefined, badge: 0 },
+    ...(isGenerator ? [{ href: '/oglasi/novi', label: 'Postavi oglas', icon: Plus, badge: 0 }] : []),
+    { href: '/korisnici', label: 'Korisnici', icon: Users, badge: 0 },
+    { href: '/poruke', label: 'Poruke', icon: MessageSquare, badge: unreadMessages },
+    ...(session?.user?.isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield, badge: 0 }] : []),
   ]
 
   return (
@@ -38,11 +58,11 @@ export default function Navbar() {
 
           {session && (
             <div className="hidden lg:flex items-center gap-1">
-              {navLinks.map(({ href, label, icon: Icon }) => (
+              {navLinks.map(({ href, label, icon: Icon, badge }) => (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive(href)
                       ? 'text-primary-700 bg-primary-50'
                       : 'text-gray-600 hover:text-primary-700 hover:bg-gray-50'
@@ -50,6 +70,9 @@ export default function Navbar() {
                 >
                   {Icon && <Icon size={16} />}
                   {label}
+                  {badge > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{badge > 99 ? '99+' : badge}</span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -143,7 +166,7 @@ export default function Navbar() {
                     <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
                   </div>
                 </div>
-                {navLinks.map(({ href, label, icon: Icon }) => (
+                {navLinks.map(({ href, label, icon: Icon, badge }) => (
                   <Link
                     key={href}
                     href={href}
@@ -154,6 +177,9 @@ export default function Navbar() {
                   >
                     {Icon && <Icon size={16} />}
                     {label}
+                    {badge > 0 && (
+                      <span className="ml-auto min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{badge > 99 ? '99+' : badge}</span>
+                    )}
                   </Link>
                 ))}
                 <Link href={`/profil/${session.user.id}`} onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { MapPin, Calendar, Eye, Package, User, Edit, Trash2, MessageSquare, ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react'
+import { MapPin, Calendar, Eye, Package, User, Edit, Trash2, MessageSquare, ChevronLeft, ChevronRight, ShieldCheck, AlertTriangle } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Badge from '@/components/ui/Badge'
@@ -13,7 +13,7 @@ import Card from '@/components/ui/Card'
 import Avatar from '@/components/ui/Avatar'
 import Spinner from '@/components/ui/Spinner'
 import { formatPrice, formatDate, formatQuantity } from '@/lib/utils/format'
-import { getCategoryName } from '@/lib/constants/waste-categories'
+import { getCategoryLabel } from '@/lib/constants/waste-categories'
 
 export default function ListingDetailPage() {
   const { id } = useParams()
@@ -115,7 +115,7 @@ export default function ListingDetailPage() {
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900">{listing.title}</h1>
                     <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                      <span className="flex items-center gap-1"><MapPin size={14} /> {listing.city}</span>
+                      <span className="flex items-center gap-1"><MapPin size={14} /> {listing.municipality}</span>
                       <span className="flex items-center gap-1"><Eye size={14} /> {listing.viewsCount} pregleda</span>
                       <span className="flex items-center gap-1"><Calendar size={14} /> {formatDate(listing.createdAt)}</span>
                     </div>
@@ -130,14 +130,20 @@ export default function ListingDetailPage() {
                   )}
                 </div>
 
+                {listing.isHazardous && (
+                  <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                    <AlertTriangle size={16} /> Opasan otpad — potrebne specijalne dozvole za rukovanje
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <p className="text-xs text-gray-400 uppercase font-medium">Indeksni broj</p>
-                    <p className="text-sm font-bold text-gray-900 font-mono mt-0.5">{listing.wasteIndexNumber}</p>
+                    <p className="text-xs text-gray-400 uppercase font-medium">Kategorija</p>
+                    <p className="text-sm font-bold text-gray-900 mt-0.5">{getCategoryLabel(listing.wasteSubcategory || listing.wasteCategory)}</p>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <p className="text-xs text-gray-400 uppercase font-medium">Kategorija</p>
-                    <p className="text-sm font-bold text-gray-900 mt-0.5">{getCategoryName(listing.wasteCategory)}</p>
+                    <p className="text-xs text-gray-400 uppercase font-medium">Indeksni broj</p>
+                    <p className="text-sm font-bold text-gray-900 font-mono mt-0.5">{listing.wasteIndexNumber || '—'}</p>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                     <p className="text-xs text-gray-400 uppercase font-medium">Količina</p>

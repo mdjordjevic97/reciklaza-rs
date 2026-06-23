@@ -40,10 +40,12 @@ export default function EditListingPage() {
                 description: listing.description,
                 wasteIndexNumber: listing.wasteIndexNumber,
                 wasteCategory: listing.wasteCategory,
+                wasteSubcategory: listing.wasteSubcategory,
+                isHazardous: listing.isHazardous,
                 quantity: Number(listing.quantity),
                 unit: listing.unit,
                 pricePerUnit: listing.pricePerUnit ? Number(listing.pricePerUnit) : null,
-                city: listing.city,
+                municipality: listing.municipality,
                 address: listing.address,
                 images: listing.images,
               }} />

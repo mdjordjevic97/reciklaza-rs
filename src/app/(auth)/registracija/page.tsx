@@ -124,14 +124,7 @@ export default function RegisterPage() {
         return
       }
 
-      await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      })
-
-      router.push('/oglasi')
-      router.refresh()
+      router.push(`/verifikacija-emaila?email=${encodeURIComponent(formData.email)}`)
     } catch {
       setError('Došlo je do greške. Pokušajte ponovo.')
       setLoading(false)

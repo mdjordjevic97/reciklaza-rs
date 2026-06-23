@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import { useState } from 'react'
 import { wasteCategories } from '@/lib/constants/waste-categories'
-import { serbianCities } from '@/lib/constants/serbian-cities'
+import { serbianMunicipalities } from '@/lib/constants/serbian-cities'
 
 export default function ListingFilters() {
   const router = useRouter()
@@ -13,13 +13,17 @@ export default function ListingFilters() {
   const [showFilters, setShowFilters] = useState(false)
 
   const category = searchParams.get('category') || ''
-  const city = searchParams.get('city') || ''
-  const userType = searchParams.get('userType') || ''
+  const subcategory = searchParams.get('subcategory') || ''
+  const municipality = searchParams.get('municipality') || ''
+  const hazardous = searchParams.get('hazardous') || ''
+
+  const selectedCat = wasteCategories.find(c => c.value === category)
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     if (value) params.set(key, value)
     else params.delete(key)
+    if (key === 'category') params.delete('subcategory')
     params.delete('page')
     router.push(`/oglasi?${params.toString()}`)
   }
@@ -34,7 +38,7 @@ export default function ListingFilters() {
     router.push('/oglasi')
   }
 
-  const hasFilters = category || city || userType || searchParams.get('search')
+  const hasFilters = category || municipality || hazardous || subcategory || searchParams.get('search')
 
   return (
     <div className="space-y-4">
@@ -62,9 +66,9 @@ export default function ListingFilters() {
       </form>
 
       {showFilters && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Kategorija otpada</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Kategorija</label>
             <select
               value={category}
               onChange={(e) => updateFilter('category', e.target.value)}
@@ -72,33 +76,48 @@ export default function ListingFilters() {
             >
               <option value="">Sve kategorije</option>
               {wasteCategories.map((c) => (
-                <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                <option key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>
           </div>
+          {selectedCat && selectedCat.subcategories.length > 0 && (
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">Podkategorija</label>
+              <select
+                value={subcategory}
+                onChange={(e) => updateFilter('subcategory', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm bg-white outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">Sve</option>
+                {selectedCat.subcategories.map((s) => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Grad</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Opština</label>
             <select
-              value={city}
-              onChange={(e) => updateFilter('city', e.target.value)}
+              value={municipality}
+              onChange={(e) => updateFilter('municipality', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm bg-white outline-none focus:ring-2 focus:ring-primary-500"
             >
-              <option value="">Svi gradovi</option>
-              {serbianCities.map((c) => (
+              <option value="">Sve opštine</option>
+              {serbianMunicipalities.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Tip korisnika</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Vrsta otpada</label>
             <select
-              value={userType}
-              onChange={(e) => updateFilter('userType', e.target.value)}
+              value={hazardous}
+              onChange={(e) => updateFilter('hazardous', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm bg-white outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Svi</option>
-              <option value="GENERATOR">Generatori</option>
-              <option value="COLLECTOR">Sakupljači</option>
+              <option value="false">Neopasan</option>
+              <option value="true">Opasan</option>
             </select>
           </div>
         </div>
