@@ -40,11 +40,11 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-sm">
                 <Mail size={16} className="text-primary-400 shrink-0" />
-                <span>info@reciklaza.rs</span>
+                <span>office@reciklaza.rs</span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone size={16} className="text-primary-400 shrink-0" />
-                <span>+381 11 000 0000</span>
+                <span>+381 66 571 9163</span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <MapPin size={16} className="text-primary-400 shrink-0" />

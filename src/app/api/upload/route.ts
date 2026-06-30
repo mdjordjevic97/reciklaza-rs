@@ -3,8 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, LIMITS } from '@/lib/rate-limit'
 import { validateImageFile, MAX_IMAGES_PER_LISTING } from '@/lib/utils/upload'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
+import { uploadFileToFtp, generateFileName } from '@/lib/ftp-storage'
 
 export async function POST(request: Request) {
   try {
@@ -36,23 +35,18 @@ export async function POST(request: Request) {
       if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'listings', listingId)
-    await mkdir(uploadDir, { recursive: true })
-
     const uploaded = []
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
-      const ext = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const filePath = join(uploadDir, fileName)
-      await writeFile(filePath, buffer)
+      const fileName = generateFileName(file.name)
+      const imageUrl = await uploadFileToFtp(buffer, `listings/${listingId}/${fileName}`)
 
       const image = await prisma.listingImage.create({
         data: {
           listingId,
-          imageUrl: `/uploads/listings/${listingId}/${fileName}`,
+          imageUrl,
           displayOrder: existingCount + i,
         },
       })

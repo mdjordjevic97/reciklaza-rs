@@ -125,7 +125,7 @@ export default function UsloviKoriscenja() {
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-3">10. Kontakt</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Za sva pitanja u vezi sa ovim Uslovima korišćenja, možete nas kontaktirati na: <strong>info@reciklaza.rs</strong>
+                Za sva pitanja u vezi sa ovim Uslovima korišćenja, možete nas kontaktirati na: <strong>office@reciklaza.rs</strong>
               </p>
               <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-600">
                 <p><strong>PORT 22 Mihailo Đorđević PR</strong></p>

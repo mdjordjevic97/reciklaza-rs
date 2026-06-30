@@ -128,7 +128,7 @@ export default function PolitikaPrivatnosti() {
                 <li><strong>Pravo na povlačenje pristanka</strong> — pravo da u svakom trenutku povučete pristanak za obradu podataka, pri čemu povlačenje ne utiče na zakonitost obrade izvršene pre povlačenja</li>
               </ul>
               <p className="text-sm text-gray-600 leading-relaxed mt-3">
-                Za ostvarivanje ovih prava, kontaktirajte nas na: <strong>info@reciklaza.rs</strong>. Na vaš zahtev odgovorićemo u roku od 30 dana.
+                Za ostvarivanje ovih prava, kontaktirajte nas na: <strong>office@reciklaza.rs</strong>. Na vaš zahtev odgovorićemo u roku od 30 dana.
               </p>
               <p className="text-sm text-gray-600 leading-relaxed mt-2">
                 Ukoliko smatrate da je obrada vaših podataka izvršena suprotno zakonu, imate pravo da uložite pritužbu Povereniku za informacije od javnog značaja i zaštitu podataka o ličnosti Republike Srbije.
@@ -152,7 +152,7 @@ export default function PolitikaPrivatnosti() {
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-3">11. Kontakt</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Za sva pitanja u vezi sa zaštitom vaših ličnih podataka, možete nas kontaktirati na: <strong>info@reciklaza.rs</strong>
+                Za sva pitanja u vezi sa zaštitom vaših ličnih podataka, možete nas kontaktirati na: <strong>office@reciklaza.rs</strong>
               </p>
               <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-600">
                 <p><strong>PORT 22 Mihailo Đorđević PR</strong></p>
