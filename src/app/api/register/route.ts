@@ -4,7 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { rateLimit, LIMITS } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/utils/sanitize'
 import { generateCode, sendVerificationEmail } from '@/lib/email'
-import { uploadFileToFtp, generateFileName } from '@/lib/ftp-storage'
+import { writeFile, mkdir } from 'fs/promises'
+import { join } from 'path'
 
 export async function POST(request: Request) {
   try {
@@ -74,16 +75,21 @@ export async function POST(request: Request) {
       },
     })
 
+    const uploadDir = join(process.cwd(), 'public', 'uploads', 'permits', user.id)
+    await mkdir(uploadDir, { recursive: true })
+
     for (const file of permitFiles) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
-      const fileName = generateFileName(file.name)
-      const fileUrl = await uploadFileToFtp(buffer, `permits/${user.id}/${fileName}`)
+      const ext = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const filePath = join(uploadDir, fileName)
+      await writeFile(filePath, buffer)
 
       await prisma.permit.create({
         data: {
           userId: user.id,
-          fileUrl,
+          fileUrl: `/uploads/permits/${user.id}/${fileName}`,
           fileName: file.name,
           permitType: 'collection',
         },
