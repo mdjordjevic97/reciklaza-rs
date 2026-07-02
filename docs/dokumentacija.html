@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reciklaža.rs — Tehnička Dokumentacija</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: white;
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    body { font-size: 10pt; }
+    .page-break { page-break-after: always; }
+    .no-break { page-break-inside: avoid; }
+    h1, h2, h3 { page-break-after: avoid; }
+    pre, table { page-break-inside: avoid; }
+    .cover { height: 100vh; }
+  }
+
+  /* COVER PAGE */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(135deg, #14532d 0%, #15803d 50%, #16a34a 100%);
+    color: white;
+    padding: 40px;
+  }
+  .cover-logo {
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 40px;
+  }
+  .cover h1 { font-size: 36pt; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  .cover h2 { font-size: 16pt; font-weight: 400; opacity: 0.85; margin-bottom: 48px; }
+  .cover-meta {
+    background: rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 24px 40px;
+    text-align: left;
+    min-width: 360px;
+  }
+  .cover-meta p { margin-bottom: 8px; font-size: 11pt; }
+  .cover-meta span { font-weight: 600; opacity: 0.7; display: inline-block; width: 130px; }
+  .cover-badge {
+    margin-top: 60px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 8px 24px;
+    font-size: 9pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* TABLE OF CONTENTS */
+  .toc { padding: 48px 64px; }
+  .toc h2 { font-size: 22pt; color: #14532d; margin-bottom: 32px; padding-bottom: 12px; border-bottom: 3px solid #16a34a; }
+  .toc ol { list-style: none; counter-reset: toc-counter; }
+  .toc > ol > li { counter-increment: toc-counter; margin-bottom: 10px; }
+  .toc > ol > li::before { content: counter(toc-counter) ". "; font-weight: 700; color: #16a34a; }
+  .toc > ol > li > a { text-decoration: none; color: #1a1a1a; font-size: 12pt; font-weight: 600; }
+  .toc > ol > li > a:hover { color: #16a34a; }
+  .toc ol ol { margin-left: 24px; margin-top: 6px; list-style: none; counter-reset: toc-sub; }
+  .toc ol ol li { counter-increment: toc-sub; margin-bottom: 4px; }
+  .toc ol ol li::before { content: counter(toc-counter) "." counter(toc-sub) " "; color: #6b7280; font-size: 10pt; }
+  .toc ol ol li a { text-decoration: none; color: #4b5563; font-size: 10pt; }
+
+  /* CONTENT */
+  .content { padding: 48px 64px; }
+
+  h1.section { font-size: 24pt; color: #14532d; border-bottom: 3px solid #16a34a; padding-bottom: 12px; margin-bottom: 24px; margin-top: 48px; }
+  h2.subsection { font-size: 15pt; color: #15803d; margin-top: 32px; margin-bottom: 12px; }
+  h3.sub { font-size: 12pt; color: #166534; margin-top: 20px; margin-bottom: 8px; font-weight: 700; }
+
+  p { margin-bottom: 12px; }
+  ul, ol { margin-left: 24px; margin-bottom: 12px; }
+  li { margin-bottom: 4px; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9.5pt; }
+  th { background: #14532d; color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  tr:hover td { background: #f0fdf4; }
+
+  /* CODE */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9pt;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  code {
+    background: #f0fdf4;
+    color: #15803d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 9pt;
+    border: 1px solid #bbf7d0;
+  }
+  pre code { background: none; color: inherit; padding: 0; border: none; font-size: inherit; }
+
+  /* BADGES & CALLOUTS */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border-left: 4px solid;
+  }
+  .callout-info { background: #eff6ff; border-color: #3b82f6; }
+  .callout-warning { background: #fffbeb; border-color: #f59e0b; }
+  .callout-success { background: #f0fdf4; border-color: #22c55e; }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch-box {
+    border: 2px solid #16a34a;
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+    background: #f0fdf4;
+    font-weight: 600;
+    color: #14532d;
+    margin: 4px;
+    display: inline-block;
+    min-width: 140px;
+    font-size: 10pt;
+  }
+  .arch-row { display: flex; justify-content: center; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+  .arch-arrow { text-align: center; color: #16a34a; font-size: 18pt; margin: 4px 0; }
+  .arch-label { font-size: 8.5pt; color: #6b7280; text-align: center; margin-top: 4px; }
+
+  /* ENDPOINT TABLE */
+  .method { font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 8pt; }
+  .method-get { background: #dbeafe; color: #1e40af; }
+  .method-post { background: #dcfce7; color: #166534; }
+  .method-put { background: #fef3c7; color: #92400e; }
+  .method-delete { background: #fee2e2; color: #991b1b; }
+
+  /* FOOTER */
+  .doc-footer {
+    text-align: center;
+    padding: 32px;
+    color: #9ca3af;
+    font-size: 9pt;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 48px;
+  }
+
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px; }
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+  }
+  .card h4 { color: #14532d; margin-bottom: 8px; font-size: 11pt; }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover page-break">
+  <div class="cover-logo">♻</div>
+  <h1>Reciklaža.rs</h1>
+  <h2>Tehnička Dokumentacija Projekta</h2>
+  <div class="cover-meta">
+    <p><span>Verzija:</span> 1.0</p>
+    <p><span>Datum:</span> Jul 2026.</p>
+    <p><span>Platforma:</span> Web aplikacija</p>
+    <p><span>Vlasnik:</span> PORT 22 Mihailo Đorđević PR</p>
+    <p><span>PIB:</span> 111988991</p>
+    <p><span>MB:</span> 65790777</p>
+  </div>
+  <div class="cover-badge">Povjerljivo — Interna dokumentacija</div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc page-break">
+  <h2>Sadržaj</h2>
+  <ol>
+    <li><a href="#pregled">Pregled Projekta</a>
+      <ol>
+        <li><a href="#namena">Namena i opis</a></li>
+        <li><a href="#korisnici">Tipovi korisnika</a></li>
+        <li><a href="#funkcionalnosti">Ključne funkcionalnosti</a></li>
+      </ol>
+    </li>
+    <li><a href="#arhitektura">Arhitektura Sistema</a>
+      <ol>
+        <li><a href="#stek">Tehnološki stek</a></li>
+        <li><a href="#infrastruktura">Infrastruktura</a></li>
+        <li><a href="#dijagram">Dijagram arhitekture</a></li>
+      </ol>
+    </li>
+    <li><a href="#struktura">Struktura Projekta</a></li>
+    <li><a href="#baza">Baza Podataka</a>
+      <ol>
+        <li><a href="#modeli">Modeli (tabele)</a></li>
+        <li><a href="#relacije">Relacije između tabela</a></li>
+      </ol>
+    </li>
+    <li><a href="#autentikacija">Autentikacija i Autorizacija</a>
+      <ol>
+        <li><a href="#registracija-flow">Tok registracije</a></li>
+        <li><a href="#login-flow">Tok prijave</a></li>
+        <li><a href="#uloge">Uloge korisnika</a></li>
+      </ol>
+    </li>
+    <li><a href="#api">API Dokumentacija</a>
+      <ol>
+        <li><a href="#api-auth">Autentikacija</a></li>
+        <li><a href="#api-oglasi">Oglasi</a></li>
+        <li><a href="#api-poruke">Poruke</a></li>
+        <li><a href="#api-korisnici">Korisnici</a></li>
+        <li><a href="#api-admin">Admin</a></li>
+      </ol>
+    </li>
+    <li><a href="#frontend">Frontend Stranice</a></li>
+    <li><a href="#email">Email Sistem</a></li>
+    <li><a href="#upload">Upload Fajlova</a></li>
+    <li><a href="#admin">Admin Panel</a></li>
+    <li><a href="#bezbednost">Bezbednost</a></li>
+    <li><a href="#deployment">Deployment i Infrastruktura</a></li>
+    <li><a href="#env">Konfiguracija Okruženja</a></li>
+    <li><a href="#razvoj">Lokalni Razvoj</a></li>
+  </ol>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- 1. PREGLED -->
+<h1 class="section" id="pregled">1. Pregled Projekta</h1>
+
+<h2 class="subsection" id="namena">1.1 Namena i opis</h2>
+<p>
+  <strong>Reciklaža.rs</strong> je B2B web platforma za kupovinu i prodaju otpada u Srbiji. Platforma omogućava kompanijama i preduzetnicima da objavljuju oglase za otpad koji žele da prodaju ili predaju na reciklažu, kao i da pronalaze sakupljače otpada u svojoj blizini.
+</p>
+<p>
+  Sva komunikacija između korisnika odvija se isključivo unutar platforme putem ugrađenog sistema za poruke — telefonski brojevi i email adrese korisnika nisu javno vidljivi, čime se obezbeđuje privatnost i bezbednost podataka.
+</p>
+<p>
+  Platforma je vlasništvo preduzetnika <strong>PORT 22 Mihailo Đorđević PR</strong> (PIB: 111988991, MB: 65790777) koji deluje isključivo kao posrednik — ne poseduje otpad, ne naplaćuje proviziju i ne učestvuje u transakcijama između korisnika.
+</p>
+
+<h2 class="subsection" id="korisnici">1.2 Tipovi korisnika</h2>
+<div class="grid-2">
+  <div class="card">
+    <h4>🏭 Generator otpada</h4>
+    <ul>
+      <li>Firme koje proizvode otpad</li>
+      <li>Mogu postavljati oglase</li>
+      <li>Dodaju slike oglasa</li>
+      <li>Komunikacija sa sakupljačima</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>🚛 Sakupljač otpada</h4>
+    <ul>
+      <li>Firme koje sakupljaju/recikliraju otpad</li>
+      <li>Pregledaju oglase i kontaktiraju</li>
+      <li>Ne mogu postavljati oglase</li>
+      <li>Komunikacija sa generatorima</li>
+    </ul>
+  </div>
+</div>
+<div class="card" style="margin-bottom:16px">
+  <h4>🔐 Administrator</h4>
+  <ul>
+    <li>Odobrava/odbija registracije novih korisnika</li>
+    <li>Pregledava i modifikuje sve korisnike i oglase</li>
+    <li>Kreira korisnike i oglase u ime firmi</li>
+    <li>Šalje broadcast poruke svim korisnicima</li>
+    <li>Pristup admin panelu na <code>/admin</code></li>
+  </ul>
+</div>
+
+<h2 class="subsection" id="funkcionalnosti">1.3 Ključne funkcionalnosti</h2>
+<table>
+  <tr><th>Funkcionalnost</th><th>Opis</th><th>Status</th></tr>
+  <tr><td>Registracija sa dozvolama</td><td>Višekoračna registracija (tip → firma → upload dozvola → email/lozinka), verifikacija emaila i odobrenje od strane admina</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Oglasi za otpad</td><td>CRUD oglasa sa slikama, indeksnim brojem otpada, klasifikacijom, lokacijom, cenom. Filtri po kategoriji, opštini, tipu otpada</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Sistem poruka</td><td>Real-time komunikacija između korisnika putem polling mehanizma (5s interval). Inbox, nepročitani badge, direktne poruke sa profila</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Email verifikacija</td><td>6-cifreni verifikacioni kod, važi 15 minuta, mogućnost ponovnog slanja</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Zaboravljena lozinka</td><td>Reset putem 6-cifrenog koda na email, važi 15 minuta</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Admin panel</td><td>Upravljanje korisnicima, oglasima, broadcast poruke, obaveštenja o novim registracijama i oglasima</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Javni profili</td><td>Profil firme sa listom oglasa, dugme za direktnu poruku</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+  <tr><td>Sigurnost</td><td>Rate limiting, input sanitizacija, bcrypt hashovanje lozinki, middleware zaštita ruta</td><td><span class="badge badge-green">Implementirano</span></td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 2. ARHITEKTURA -->
+<h1 class="section" id="arhitektura">2. Arhitektura Sistema</h1>
+
+<h2 class="subsection" id="stek">2.1 Tehnološki stek</h2>
+<table>
+  <tr><th>Sloj</th><th>Tehnologija</th><th>Verzija</th><th>Napomena</th></tr>
+  <tr><td>Frontend</td><td>Next.js (App Router)</td><td>16.x</td><td>React Server Components + Client Components</td></tr>
+  <tr><td>Backend</td><td>Next.js API Routes</td><td>16.x</td><td>Serverless funkcije unutar istog projekta</td></tr>
+  <tr><td>Jezik</td><td>TypeScript</td><td>5.x</td><td>Strogo tipizovan kod</td></tr>
+  <tr><td>Baza podataka</td><td>MySQL</td><td>8.0</td><td>MariaDB kompatibilno</td></tr>
+  <tr><td>ORM</td><td>Prisma</td><td>5.22</td><td>Type-safe upiti, migracije</td></tr>
+  <tr><td>Autentikacija</td><td>NextAuth.js v5</td><td>5.0-beta</td><td>JWT strategija, Credentials provider</td></tr>
+  <tr><td>Stilizovanje</td><td>Tailwind CSS</td><td>4.x</td><td>Utility-first CSS</td></tr>
+  <tr><td>Ikone</td><td>Lucide React</td><td>1.x</td><td>SVG ikone</td></tr>
+  <tr><td>Validacija</td><td>Zod</td><td>4.x</td><td>Schema validacija na klijentu i serveru</td></tr>
+  <tr><td>Email</td><td>Resend</td><td>latest</td><td>Transakcioni emailovi sa DKIM/SPF</td></tr>
+  <tr><td>Upload fajlova</td><td>Node.js fs</td><td>—</td><td>Lokalni disk na VPS-u, folder <code>public/uploads/</code></td></tr>
+  <tr><td>Process manager</td><td>PM2</td><td>7.x</td><td>Auto-restart, boot startup</td></tr>
+  <tr><td>Web server</td><td>Nginx</td><td>1.18</td><td>Reverse proxy, SSL terminacija</td></tr>
+  <tr><td>SSL</td><td>Let's Encrypt</td><td>—</td><td>Besplatan, auto-renew putem Certbot-a</td></tr>
+  <tr><td>VPS</td><td>Hostinger KVM</td><td>—</td><td>Ubuntu 22.04 LTS</td></tr>
+</table>
+
+<h2 class="subsection" id="infrastruktura">2.2 Infrastruktura</h2>
+<div class="callout callout-info">
+  <strong>Hosting:</strong> Sve komponente sistema (Next.js app, MySQL baza, fajlovi) nalaze se na jednom VPS serveru na IP adresi <code>152.239.119.45</code> (Hostinger, lokacija: EU). Ovo je namerna odluka radi predvidive i fiksne mesečne cene.
+</div>
+
+<table>
+  <tr><th>Komponenta</th><th>Lokacija</th><th>Detalji</th></tr>
+  <tr><td>Next.js aplikacija</td><td>VPS: <code>/var/www/reciklaza-rs/</code></td><td>Pokreće se kao PM2 proces, port 3000</td></tr>
+  <tr><td>MySQL baza</td><td>VPS: localhost:3306</td><td>Baza: <code>reciklaza</code>, korisnik: <code>reciklaza_app</code></td></tr>
+  <tr><td>Uploadovani fajlovi</td><td>VPS: <code>/var/www/reciklaza-rs/public/uploads/</code></td><td>Dozvole: <code>permits/{userId}/</code>, Slike: <code>listings/{listingId}/</code></td></tr>
+  <tr><td>Nginx</td><td>VPS: port 80/443</td><td>Reverse proxy → localhost:3000</td></tr>
+  <tr><td>SSL sertifikat</td><td>VPS: <code>/etc/letsencrypt/</code></td><td>Let's Encrypt, auto-renew, ističe svakih 90 dana</td></tr>
+  <tr><td>Domen</td><td>Loopia DNS</td><td>reciklaza.rs → 152.239.119.45</td></tr>
+  <tr><td>Email slanje</td><td>Resend (cloud)</td><td>API poziv ka Resend servisu</td></tr>
+</table>
+
+<h2 class="subsection" id="dijagram">2.3 Dijagram arhitekture</h2>
+
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;">
+  <div class="arch-row">
+    <div class="arch-box">🌐 Browser korisnika</div>
+  </div>
+  <div class="arch-arrow">↕ HTTPS</div>
+  <div class="arch-row">
+    <div class="arch-box">🔒 Nginx (SSL)</div>
+  </div>
+  <div class="arch-arrow">↕ HTTP (localhost)</div>
+  <div class="arch-row">
+    <div class="arch-box">⚡ Next.js App<br><small style="font-weight:400;color:#6b7280">PM2 : port 3000</small></div>
+  </div>
+  <div class="arch-arrow">↕</div>
+  <div class="arch-row">
+    <div class="arch-box">🗄️ MySQL<br><small style="font-weight:400;color:#6b7280">localhost:3306</small></div>
+    <div class="arch-box">📁 Disk fajlovi<br><small style="font-weight:400;color:#6b7280">public/uploads/</small></div>
+    <div class="arch-box">✉️ Resend API<br><small style="font-weight:400;color:#6b7280">cloud email</small></div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- 3. STRUKTURA -->
+<h1 class="section" id="struktura">3. Struktura Projekta</h1>
+
+<pre><code>reciklaza-rs/
+├── prisma/
+│   ├── schema.prisma          # Definicija baze podataka
+│   ├── seed.ts                # Inicijalni podaci (test korisnici, admin)
+│   └── migrations/            # Istorija migracija baze
+│
+├── public/
+│   ├── uploads/
+│   │   ├── permits/{userId}/  # Uploadovane dozvole korisnika
+│   │   └── listings/{id}/     # Slike oglasa
+│   └── favicon.svg
+│
+├── src/
+│   ├── app/
+│   │   ├── (auth)/            # Stranice bez navbar-a (prijava, registracija itd.)
+│   │   │   ├── prijava/
+│   │   │   ├── registracija/
+│   │   │   ├── verifikacija-emaila/
+│   │   │   ├── cekanje-odobrenja/
+│   │   │   ├── zaboravljena-lozinka/
+│   │   │   └── resetuj-lozinku/
+│   │   ├── admin/             # Admin panel (zaštićeno, samo isAdmin)
+│   │   │   ├── page.tsx       # Dashboard
+│   │   │   ├── korisnici/     # Upravljanje korisnicima
+│   │   │   ├── oglasi/        # Upravljanje oglasima
+│   │   │   ├── obavestenja/   # Admin obaveštenja
+│   │   │   └── poruka-svima/  # Broadcast poruke
+│   │   ├── api/               # REST API endpoints
+│   │   │   ├── admin/         # Admin-only API rute
+│   │   │   ├── auth/          # NextAuth handler
+│   │   │   ├── conversations/ # Konverzacije
+│   │   │   ├── forgot-password/
+│   │   │   ├── listings/      # Oglasi CRUD
+│   │   │   ├── messages/      # Poruke (polling)
+│   │   │   ├── profile/       # Profili korisnika
+│   │   │   ├── register/      # Registracija
+│   │   │   ├── upload/        # Upload slika oglasa
+│   │   │   ├── users/         # Lista korisnika
+│   │   │   └── verify-email/  # Email verifikacija
+│   │   ├── oglasi/            # Stranice oglasa
+│   │   ├── korisnici/         # Lista korisnika
+│   │   ├── poruke/            # Poruke
+│   │   ├── profil/[id]/       # Javni profil
+│   │   ├── podesavanja/       # Podešavanja naloga
+│   │   ├── politika-privatnosti/
+│   │   ├── uslovi-koriscenja/
+│   │   ├── layout.tsx         # Root layout (SessionProvider)
+│   │   ├── page.tsx           # Početna stranica
+│   │   └── globals.css        # Globalni stilovi
+│   │
+│   ├── components/
+│   │   ├── layout/            # Navbar, Footer
+│   │   ├── listings/          # ListingCard, ListingFilters, ListingForm, ImageUploader
+│   │   └── ui/                # Button, Input, Card, Badge, Avatar, Select, Spinner itd.
+│   │
+│   ├── lib/
+│   │   ├── auth.ts            # NextAuth konfiguracija
+│   │   ├── email.ts           # Resend email funkcije
+│   │   ├── prisma.ts          # Prisma singleton klijent
+│   │   ├── rate-limit.ts      # In-memory rate limiting
+│   │   ├── constants/         # waste-categories, serbian-cities, units
+│   │   ├── utils/             # format, sanitize, upload helpers
+│   │   └── validations/       # Zod šeme (listing, auth, message)
+│   │
+│   ├── middleware.ts           # Auth zaštita ruta (NextAuth authorized callback)
+│   └── types/
+│       └── next-auth.d.ts     # Proširenje NextAuth tipova
+│
+├── .env                       # Lokalne env varijable (NIJE u git-u)
+├── .env.example               # Primer env varijabli (U git-u)
+├── next.config.ts             # Next.js konfiguracija
+├── prisma.config.ts           # Prisma konfiguracija
+├── package.json
+└── tsconfig.json</code></pre>
+
+<div class="page-break"></div>
+
+<!-- 4. BAZA PODATAKA -->
+<h1 class="section" id="baza">4. Baza Podataka</h1>
+
+<div class="callout callout-info">
+  ORM: <strong>Prisma v5</strong> — sve izmene šeme se rade u fajlu <code>prisma/schema.prisma</code>, a primenjuju komandom <code>npx prisma db push</code> (development) ili <code>npx prisma migrate deploy</code> (produkcija).
+</div>
+
+<h2 class="subsection" id="modeli">4.1 Modeli (tabele)</h2>
+
+<h3 class="sub">User — Korisnici</h3>
+<table>
+  <tr><th>Kolona</th><th>Tip</th><th>Opis</th></tr>
+  <tr><td><code>id</code></td><td>String (cuid)</td><td>Jedinstveni identifikator</td></tr>
+  <tr><td><code>email</code></td><td>String (unique)</td><td>Email adresa</td></tr>
+  <tr><td><code>passwordHash</code></td><td>String</td><td>bcrypt hash lozinke (salt rounds: 12)</td></tr>
+  <tr><td><code>companyName</code></td><td>String</td><td>Naziv firme</td></tr>
+  <tr><td><code>pib</code></td><td>String (unique)</td><td>Poreski identifikacioni broj (9 cifara)</td></tr>
+  <tr><td><code>address</code></td><td>String</td><td>Adresa sedišta</td></tr>
+  <tr><td><code>city</code></td><td>String</td><td>Grad (interno, ne prikazuje se korisnicima)</td></tr>
+  <tr><td><code>contactPerson</code></td><td>String</td><td>Kontakt osoba</td></tr>
+  <tr><td><code>phone</code></td><td>String?</td><td>Telefon (opciono, NIKAD javno vidljiv)</td></tr>
+  <tr><td><code>userType</code></td><td>Enum</td><td>GENERATOR ili COLLECTOR</td></tr>
+  <tr><td><code>avatarUrl</code></td><td>String?</td><td>URL profilne slike (nije implementirano)</td></tr>
+  <tr><td><code>bio</code></td><td>Text?</td><td>Kratki opis firme</td></tr>
+  <tr><td><code>emailVerified</code></td><td>Boolean</td><td>Da li je email verifikovan (default: false)</td></tr>
+  <tr><td><code>verified</code></td><td>Boolean</td><td>Da li je admin odobrio nalog (default: false)</td></tr>
+  <tr><td><code>isAdmin</code></td><td>Boolean</td><td>Admin privilegija (default: false)</td></tr>
+  <tr><td><code>createdAt</code></td><td>DateTime</td><td>Datum registracije</td></tr>
+  <tr><td><code>updatedAt</code></td><td>DateTime</td><td>Datum poslednje izmene</td></tr>
+</table>
+
+<h3 class="sub">Permit — Dozvole</h3>
+<table>
+  <tr><th>Kolona</th><th>Tip</th><th>Opis</th></tr>
+  <tr><td><code>id</code></td><td>String (cuid)</td><td>Jedinstveni identifikator</td></tr>
+  <tr><td><code>userId</code></td><td>String (FK)</td><td>Vlasnik dozvole</td></tr>
+  <tr><td><code>fileUrl</code></td><td>String</td><td>Putanja fajla (PDF ili slika)</td></tr>
+  <tr><td><code>fileName</code></td><td>String</td><td>Originalno ime fajla</td></tr>
+  <tr><td><code>permitType</code></td><td>String</td><td>collection / storage / transport / treatment</td></tr>
+  <tr><td><code>status</code></td><td>Enum</td><td>PENDING / APPROVED / REJECTED</td></tr>
+  <tr><td><code>reviewerNotes</code></td><td>Text?</td><td>Napomene admina</td></tr>
+  <tr><td><code>uploadedAt</code></td><td>DateTime</td><td>Datum uploada</td></tr>
+  <tr><td><code>reviewedAt</code></td><td>DateTime?</td><td>Datum pregleda</td></tr>
+</table>
+
+<h3 class="sub">Listing — Oglasi</h3>
+<table>
+  <tr><th>Kolona</th><th>Tip</th><th>Opis</th></tr>
+  <tr><td><code>id</code></td><td>String (cuid)</td><td>Jedinstveni identifikator</td></tr>
+  <tr><td><code>userId</code></td><td>String (FK)</td><td>Autor oglasa (samo GENERATOR)</td></tr>
+  <tr><td><code>title</code></td><td>String</td><td>Naslov oglasa</td></tr>
+  <tr><td><code>description</code></td><td>Text</td><td>Opis otpada</td></tr>
+  <tr><td><code>wasteIndexNumber</code></td><td>String</td><td>EU indeksni broj otpada (format: "XX XX XX")</td></tr>
+  <tr><td><code>wasteCategory</code></td><td>String</td><td>Kategorija (npr. "metali", "nemetali")</td></tr>
+  <tr><td><code>wasteSubcategory</code></td><td>String?</td><td>Podkategorija (npr. "bakar", "plastika")</td></tr>
+  <tr><td><code>isHazardous</code></td><td>Boolean</td><td>Da li je opasan otpad</td></tr>
+  <tr><td><code>quantity</code></td><td>Decimal(12,2)</td><td>Količina</td></tr>
+  <tr><td><code>unit</code></td><td>String</td><td>Jedinica mere: kg / tona / m3 / komad / litar</td></tr>
+  <tr><td><code>pricePerUnit</code></td><td>Decimal?</td><td>Cena (null = po dogovoru)</td></tr>
+  <tr><td><code>currency</code></td><td>String</td><td>Valuta (default: RSD)</td></tr>
+  <tr><td><code>municipality</code></td><td>String</td><td>Opština</td></tr>
+  <tr><td><code>address</code></td><td>String?</td><td>Adresa (opciono)</td></tr>
+  <tr><td><code>status</code></td><td>Enum</td><td>ACTIVE / PAUSED / SOLD / EXPIRED</td></tr>
+  <tr><td><code>viewsCount</code></td><td>Int</td><td>Broj pregleda</td></tr>
+  <tr><td><code>createdAt</code></td><td>DateTime</td><td>Datum kreiranja</td></tr>
+</table>
+
+<h3 class="sub">Ostali modeli</h3>
+<table>
+  <tr><th>Model</th><th>Opis</th><th>Ključna polja</th></tr>
+  <tr><td><code>ListingImage</code></td><td>Slike vezane za oglas (max 8)</td><td>listingId, imageUrl, displayOrder</td></tr>
+  <tr><td><code>Conversation</code></td><td>Razgovor između dva korisnika (opciono vezan za oglas)</td><td>listingId?, participant1Id, participant2Id, lastMessageAt</td></tr>
+  <tr><td><code>Message</code></td><td>Individualna poruka u razgovoru</td><td>conversationId, senderId, content, read</td></tr>
+  <tr><td><code>VerificationCode</code></td><td>Kodovi za email verifikaciju i reset lozinke</td><td>email, code, type (EMAIL_VERIFY/PASSWORD_RESET), expiresAt, used</td></tr>
+  <tr><td><code>AdminNotification</code></td><td>Obaveštenja za admina (nova registracija, novi oglas)</td><td>type, title, message, data (JSON), read</td></tr>
+</table>
+
+<h2 class="subsection" id="relacije">4.2 Relacije između tabela</h2>
+<pre><code>User ──── Permit (1:N, onDelete: Cascade)
+User ──── Listing (1:N, onDelete: Cascade)
+User ──── Message (1:N, onDelete: Cascade)
+User ──── Conversation (kao participant1 ili participant2, 1:N, onDelete: Cascade)
+
+Listing ──── ListingImage (1:N, onDelete: Cascade)
+Listing ──── Conversation (1:N, onDelete: Cascade)
+
+Conversation ──── Message (1:N, onDelete: Cascade)
+
+UNIQUE constraint: Conversation(listingId, participant1Id, participant2Id)
+  → Sprečava dupliranje konverzacija za isti oglas i isti par korisnika</code></pre>
+
+<div class="page-break"></div>
+
+<!-- 5. AUTENTIKACIJA -->
+<h1 class="section" id="autentikacija">5. Autentikacija i Autorizacija</h1>
+
+<div class="callout callout-info">
+  Koristi se <strong>NextAuth.js v5</strong> sa Credentials providerom i JWT strategijom. JWT token se čuva u HTTP-only cookie-ju, bez potrebe za tablelom sesija u bazi.
+</div>
+
+<h2 class="subsection" id="registracija-flow">5.1 Tok registracije</h2>
+<pre><code>Korak 1: Izbor tipa → GENERATOR ili COLLECTOR
+     ↓
+Korak 2: Unos podataka firme → naziv, PIB, adresa, opština, kontakt osoba, telefon
+     ↓
+Korak 3: Upload dozvola → minimum 1 fajl (PDF/JPG/PNG, max 10MB)
+           → Fajlovi se čuvaju na: public/uploads/permits/{userId}/
+     ↓
+Korak 4: Email i lozinka → minimum 8 karaktera
+     ↓
+POST /api/register:
+  - Validacija PIB-a (9 cifara)
+  - Provera duplikata (email, PIB)
+  - bcrypt hashovanje lozinke (salt rounds: 12)
+  - Kreiranje User-a (emailVerified: false, verified: false)
+  - Čuvanje dozvola u Permit tabeli
+  - Generisanje 6-cifrenog koda, slanje na email putem Resend-a
+  - Kreiranje AdminNotification za admina
+     ↓
+/verifikacija-emaila → korisnik unosi 6-cifreni kod (važi 15 min)
+     ↓
+POST /api/verify-email → emailVerified: true
+     ↓
+/cekanje-odobrenja → korisnik čeka admin odobrenje
+     ↓
+Admin odobrava u /admin/korisnici → verified: true
+  → Šalje se email obaveštenje korisniku da je nalog odobren
+     ↓
+Korisnik se može prijaviti</code></pre>
+
+<h2 class="subsection" id="login-flow">5.2 Tok prijave</h2>
+<pre><code>POST /api/auth/callback/credentials
+  ↓
+Provere u authorize() funkciji (src/lib/auth.ts):
+  1. Nalazi korisnika po emailu
+  2. bcrypt.compare(password, passwordHash)
+  3. if (!emailVerified) → throw Error('EMAIL_NOT_VERIFIED')
+  4. if (!verified &amp;&amp; !isAdmin) → throw Error('NOT_APPROVED')
+  5. Uspešno → JWT token sadrži: id, email, userType, companyName, verified, isAdmin
+  ↓
+JWT token → HTTP-only cookie (SameSite=Lax)
+  ↓
+Middleware (src/middleware.ts) proverava JWT na svakom zahtevu</code></pre>
+
+<h2 class="subsection" id="uloge">5.3 Uloge korisnika</h2>
+<table>
+  <tr><th>Uloga</th><th>Uslov</th><th>Dozvoljene akcije</th></tr>
+  <tr><td><span class="badge badge-amber">Gost</span></td><td>Neprijavljen korisnik</td><td>Samo: /prijava, /registracija, početna stranica</td></tr>
+  <tr><td><span class="badge badge-blue">Generator</span></td><td>userType=GENERATOR, verified=true</td><td>Sve + postavljanje oglasa</td></tr>
+  <tr><td><span class="badge badge-green">Sakupljač</span></td><td>userType=COLLECTOR, verified=true</td><td>Pregled oglasa, poruke, profili (bez oglasa)</td></tr>
+  <tr><td><span class="badge badge-red">Admin</span></td><td>isAdmin=true</td><td>Sve + /admin panel</td></tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>Zaštita ruta:</strong> Middleware u <code>src/middleware.ts</code> automatski preusmerava neprijavljene korisnike na <code>/prijava</code> za sve rute osim javnih (<code>/</code>, <code>/prijava</code>, <code>/registracija</code> i auth stranice). Admin rute (<code>/admin/*</code>) su zaštićene dodatnom proverom <code>isAdmin</code> flaga.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 6. API -->
+<h1 class="section" id="api">6. API Dokumentacija</h1>
+
+<p>Svi API endpoint-i nalaze se pod <code>/api/</code> prefiksom. Autorizovani endpoint-i zahtevaju važeću NextAuth sesiju u cookie-ju. Svi endpoint-i vraćaju JSON.</p>
+
+<h2 class="subsection" id="api-auth">6.1 Autentikacija</h2>
+<table>
+  <tr><th>Metod</th><th>Endpoint</th><th>Opis</th><th>Auth</th></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/register</code></td><td>Registracija novog korisnika (multipart/form-data, uključuje upload dozvola)</td><td>Ne</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/verify-email</code></td><td>Verifikacija emaila 6-cifrenim kodom</td><td>Ne</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/verify-email</code></td><td>Ponovo pošalji verifikacioni kod</td><td>Ne</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/forgot-password</code></td><td>Pošalji kod za reset lozinke</td><td>Ne</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/forgot-password</code></td><td>Reset lozinke sa kodom</td><td>Ne</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/auth/callback/credentials</code></td><td>NextAuth prijava (email + lozinka)</td><td>Ne</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/auth/signout</code></td><td>Odjava</td><td>Da</td></tr>
+</table>
+
+<h2 class="subsection" id="api-oglasi">6.2 Oglasi</h2>
+<table>
+  <tr><th>Metod</th><th>Endpoint</th><th>Opis</th><th>Auth</th></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/listings</code></td><td>Lista oglasa. Query params: category, subcategory, municipality, hazardous, search, userId, page</td><td>Da</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/listings</code></td><td>Kreiranje novog oglasa (samo GENERATOR)</td><td>Da</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/listings/[id]</code></td><td>Detalji jednog oglasa (uvećava viewsCount)</td><td>Da</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/listings/[id]</code></td><td>Izmena oglasa (samo vlasnik)</td><td>Da</td></tr>
+  <tr><td><span class="method method-delete">DELETE</span></td><td><code>/api/listings/[id]</code></td><td>Brisanje oglasa (samo vlasnik)</td><td>Da</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/upload</code></td><td>Upload slika za oglas (multipart, max 8 slika, 5MB po slici)</td><td>Da</td></tr>
+</table>
+
+<h2 class="subsection" id="api-poruke">6.3 Poruke i konverzacije</h2>
+<table>
+  <tr><th>Metod</th><th>Endpoint</th><th>Opis</th><th>Auth</th></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/conversations</code></td><td>Lista svih konverzacija prijavljenog korisnika sa brojem nepročitanih</td><td>Da</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/conversations</code></td><td>Kreiranje/pronalazak konverzacije (telo: {listingId?, otherUserId})</td><td>Da</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/messages?conversationId=&amp;after=</code></td><td>Poruke konverzacije (after param za polling novih). Automatski označava kao pročitane.</td><td>Da</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/messages</code></td><td>Slanje poruke (telo: {conversationId, content})</td><td>Da</td></tr>
+</table>
+
+<h2 class="subsection" id="api-korisnici">6.4 Korisnici i profili</h2>
+<table>
+  <tr><th>Metod</th><th>Endpoint</th><th>Opis</th><th>Auth</th></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/users</code></td><td>Lista svih korisnika (bez sopstvenog). Filteri: city, userType, search</td><td>Da</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/profile/[id]</code></td><td>Javni profil korisnika (bez telefona i emaila)</td><td>Da</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/profile/[id]/update</code></td><td>Izmena sopstvenog profila</td><td>Da (vlasnik)</td></tr>
+</table>
+
+<h2 class="subsection" id="api-admin">6.5 Admin endpoint-i</h2>
+<div class="callout callout-warning">Svi <code>/api/admin/*</code> endpoint-i zahtevaju <code>isAdmin=true</code> u JWT tokenu.</div>
+<table>
+  <tr><th>Metod</th><th>Endpoint</th><th>Opis</th></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/admin/users</code></td><td>Lista svih korisnika sa brojem oglasa. Pretraga po email, naziv, PIB</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/admin/users</code></td><td>Kreiranje novog korisnika</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/admin/users/[id]</code></td><td>Detalji korisnika sa dozvolama</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/admin/users/[id]</code></td><td>Izmena korisnika. Ako se verified promeni na true → šalje email odobrenja</td></tr>
+  <tr><td><span class="method method-delete">DELETE</span></td><td><code>/api/admin/users/[id]</code></td><td>Brisanje korisnika (cascade delete: dozvole, oglasi, poruke)</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/admin/users/[id]/approve</code></td><td>Brzo odobrenje korisnika + slanje emaila odobrenja</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/admin/listings</code></td><td>Lista svih oglasa sa slikom i firmom</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/admin/listings</code></td><td>Kreiranje oglasa u ime druge firme</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/admin/listings/[id]</code></td><td>Izmena bilo kog oglasa</td></tr>
+  <tr><td><span class="method method-delete">DELETE</span></td><td><code>/api/admin/listings/[id]</code></td><td>Brisanje bilo kog oglasa</td></tr>
+  <tr><td><span class="method method-get">GET</span></td><td><code>/api/admin/notifications</code></td><td>Lista admin obaveštenja. Query: unread=true za samo nepročitana</td></tr>
+  <tr><td><span class="method method-put">PUT</span></td><td><code>/api/admin/notifications</code></td><td>Označavanje kao pročitano. Body: {id} ili {readAll: true}</td></tr>
+  <tr><td><span class="method method-post">POST</span></td><td><code>/api/admin/broadcast</code></td><td>Slanje poruke svim korisnicima (kreira direktne konverzacije)</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 7. FRONTEND -->
+<h1 class="section" id="frontend">7. Frontend Stranice</h1>
+
+<table>
+  <tr><th>Ruta</th><th>Stranica</th><th>Auth?</th><th>Opis</th></tr>
+  <tr><td><code>/</code></td><td>Početna</td><td>Ne</td><td>Hero sekcija, "kako funkcioniše", tipovi korisnika, CTA</td></tr>
+  <tr><td><code>/prijava</code></td><td>Prijava</td><td>Ne</td><td>Email + lozinka. Posebne poruke za neverifikovan email i čekanje odobrenja</td></tr>
+  <tr><td><code>/registracija</code></td><td>Registracija</td><td>Ne</td><td>4-koračni wizard: tip → firma → dozvole → kredencijali</td></tr>
+  <tr><td><code>/verifikacija-emaila</code></td><td>Email verifikacija</td><td>Ne</td><td>Unos 6-cifrenog koda sa mogućnošću ponovnog slanja</td></tr>
+  <tr><td><code>/cekanje-odobrenja</code></td><td>Čekanje odobrenja</td><td>Ne</td><td>Informativna stranica dok admin pregleda</td></tr>
+  <tr><td><code>/zaboravljena-lozinka</code></td><td>Zaboravljena lozinka</td><td>Ne</td><td>Unos emaila, šalje reset kod</td></tr>
+  <tr><td><code>/resetuj-lozinku</code></td><td>Reset lozinke</td><td>Ne</td><td>Unos koda i nove lozinke</td></tr>
+  <tr><td><code>/oglasi</code></td><td>Lista oglasa</td><td>Da</td><td>Grid oglasa sa filterima (kategorija, podkategorija, opština, opasan/neopasan, pretraga), paginacija</td></tr>
+  <tr><td><code>/oglasi/novi</code></td><td>Novi oglas</td><td>Da (GENERATOR)</td><td>Forma sa odabirom kategorije/podkategorije, upload slika, cena/po dogovoru</td></tr>
+  <tr><td><code>/oglasi/[id]</code></td><td>Detalj oglasa</td><td>Da</td><td>Galerija slika, detalji, "Pošalji poruku" dugme, vlasnik može da izmeni/obriše</td></tr>
+  <tr><td><code>/oglasi/[id]/izmeni</code></td><td>Izmena oglasa</td><td>Da (vlasnik)</td><td>Forma sa svim polima unapred popunjena</td></tr>
+  <tr><td><code>/korisnici</code></td><td>Korisnici</td><td>Da</td><td>Lista svih korisnika (bez sopstvenog) sa filterima (grad, tip) i pretragom</td></tr>
+  <tr><td><code>/profil/[id]</code></td><td>Profil korisnika</td><td>Da</td><td>Podaci firme, lista oglasa (sa edit dugmetom za sopstveni profil), "Pošalji poruku" za tuđe</td></tr>
+  <tr><td><code>/podesavanja</code></td><td>Podešavanja</td><td>Da</td><td>Izmena podataka profila (naziv, adresa, kontakt, bio)</td></tr>
+  <tr><td><code>/poruke</code></td><td>Inbox</td><td>Da</td><td>Lista konverzacija sa brojem nepročitanih, osvežava se polling-om svakih 10s</td></tr>
+  <tr><td><code>/poruke/[id]</code></td><td>Chat</td><td>Da</td><td>Chat interfejs, polling novih poruka svakih 3s, sanitizovane poruke</td></tr>
+  <tr><td><code>/uslovi-koriscenja</code></td><td>Uslovi korišćenja</td><td>Ne</td><td>Pravni dokument</td></tr>
+  <tr><td><code>/politika-privatnosti</code></td><td>Politika privatnosti</td><td>Ne</td><td>GDPR usklađen dokument</td></tr>
+  <tr><td><code>/admin</code></td><td>Admin dashboard</td><td>Da (admin)</td><td>Statistike, brze akcije</td></tr>
+  <tr><td><code>/admin/korisnici</code></td><td>Admin korisnici</td><td>Da (admin)</td><td>Tabela sa pretragom, edit/approve/delete</td></tr>
+  <tr><td><code>/admin/oglasi</code></td><td>Admin oglasi</td><td>Da (admin)</td><td>Tabela svih oglasa, edit/delete</td></tr>
+  <tr><td><code>/admin/obavestenja</code></td><td>Admin obaveštenja</td><td>Da (admin)</td><td>Notifikacije o novim registracijama i oglasima</td></tr>
+  <tr><td><code>/admin/poruka-svima</code></td><td>Broadcast</td><td>Da (admin)</td><td>Slanje poruke svim korisnicima</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 8. EMAIL SISTEM -->
+<h1 class="section" id="email">8. Email Sistem</h1>
+
+<div class="callout callout-success">
+  Koristi se <strong>Resend</strong> servis za slanje transakcionih emailova. Resend automatski upravlja SPF, DKIM i DMARC zapisima što garantuje isporučivost na Gmail, Yahoo i ostale provajdere.
+</div>
+
+<h2 class="subsection">8.1 Tipovi emailova</h2>
+<table>
+  <tr><th>Funkcija</th><th>Okidač</th><th>Primalac</th><th>Sadržaj</th></tr>
+  <tr><td><code>sendVerificationEmail()</code></td><td>Uspešna registracija</td><td>Novi korisnik</td><td>6-cifreni verifikacioni kod, važi 15 min</td></tr>
+  <tr><td><code>sendPasswordResetEmail()</code></td><td>Zahtev za reset lozinke</td><td>Korisnik</td><td>6-cifreni reset kod, važi 15 min</td></tr>
+  <tr><td><code>sendApprovalEmail()</code></td><td>Admin odobri korisnika</td><td>Odobreni korisnik</td><td>Obaveštenje o odobrenju + link za prijavu</td></tr>
+</table>
+
+<h2 class="subsection">8.2 Konfiguracija</h2>
+<pre><code># .env
+RESEND_API_KEY="re_..."           # API ključ sa resend.com
+RESEND_FROM="Reciklaza.rs &lt;noreply@reciklaza.rs&gt;"  # Sender adresa</code></pre>
+
+<p>Implementacija se nalazi u <code>src/lib/email.ts</code>. Resend klijent se inicijalizuje <em>lazy</em> unutar svake funkcije (ne na nivou modula) da bi Next.js build uspešno prošao bez API ključa u build-time okruženju.</p>
+
+<!-- 9. UPLOAD FAJLOVA -->
+<h1 class="section" id="upload">9. Upload Fajlova</h1>
+
+<table>
+  <tr><th>Tip fajla</th><th>Endpoint</th><th>Putanja na disku</th><th>URL pristup</th></tr>
+  <tr><td>Dozvole (PDF/slike)</td><td><code>POST /api/register</code></td><td><code>public/uploads/permits/{userId}/</code></td><td><code>/uploads/permits/{userId}/{filename}</code></td></tr>
+  <tr><td>Slike oglasa</td><td><code>POST /api/upload</code></td><td><code>public/uploads/listings/{listingId}/</code></td><td><code>/uploads/listings/{listingId}/{filename}</code></td></tr>
+</table>
+
+<h2 class="subsection">9.1 Validacija</h2>
+<table>
+  <tr><th>Ograničenje</th><th>Dozvole</th><th>Slike oglasa</th></tr>
+  <tr><td>Dozvoljeni tipovi</td><td>image/jpeg, image/png, image/webp, application/pdf</td><td>image/jpeg, image/png, image/webp</td></tr>
+  <tr><td>Max veličina</td><td>10 MB po fajlu</td><td>5 MB po slici</td></tr>
+  <tr><td>Max broj</td><td>Neograničeno</td><td>8 slika po oglasu</td></tr>
+</table>
+
+<p>Fajlovi se čuvaju sa slučajnim imenom formata <code>{timestamp}-{random}.{ext}</code> da bi se sprečilo pogađanje URL-a i prepisivanje.</p>
+
+<div class="callout callout-warning">
+  <strong>Backup:</strong> Fajlovi se čuvaju lokalno na VPS-u. Preporučuje se periodični backup foldera <code>/var/www/reciklaza-rs/public/uploads/</code> na eksterni storage.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 10. ADMIN PANEL -->
+<h1 class="section" id="admin">10. Admin Panel</h1>
+
+<p>Admin panel je dostupan na <code>https://reciklaza.rs/admin</code> isključivo za korisnike sa <code>isAdmin=true</code> flagom. Pristup se štiti i na nivou middleware-a i na nivou svakog API endpoint-a.</p>
+
+<h2 class="subsection">10.1 Funkcionalnosti admin panela</h2>
+<div class="grid-2">
+  <div class="card">
+    <h4>👥 Upravljanje korisnicima</h4>
+    <ul>
+      <li>Pregled svih registrovanih korisnika</li>
+      <li>Odobrenje/odbijanje novih korisnika</li>
+      <li>Izmena svih podataka korisnika</li>
+      <li>Kreiranje korisnika direktno (bez email verifikacije)</li>
+      <li>Brisanje korisnika (cascade)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>📋 Upravljanje oglasima</h4>
+    <ul>
+      <li>Pregled svih oglasa sa pretragom</li>
+      <li>Izmena bilo kog oglasa (sve stavke)</li>
+      <li>Promena statusa oglasa</li>
+      <li>Kreiranje oglasa u ime bilo koje firme</li>
+      <li>Brisanje oglasa</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>🔔 Obaveštenja</h4>
+    <ul>
+      <li>Automatska notifikacija pri novoj registraciji</li>
+      <li>Automatska notifikacija pri novom oglasu</li>
+      <li>Crveni badge sa brojem nepročitanih u sidebar-u</li>
+      <li>Direktan link do korisnika/oglasa</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>📢 Broadcast poruke</h4>
+    <ul>
+      <li>Slanje poruke svim korisnicima odjednom</li>
+      <li>Poruke stižu kao direktne poruke u inbox</li>
+      <li>Potvrda sa brojem primalaca</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="subsection">10.2 Admin nalog</h2>
+<p>Admin nalog se kreira putem seed skripte. Da bi korisnik bio admin, polje <code>isAdmin</code> mora biti <code>true</code> u bazi. Ovo se ne može postaviti putem registracionog interfejsa — isključivo direktno u bazi ili putem seed skripte.</p>
+
+<div class="page-break"></div>
+
+<!-- 11. BEZBEDNOST -->
+<h1 class="section" id="bezbednost">11. Bezbednost</h1>
+
+<table>
+  <tr><th>#</th><th>Mera</th><th>Implementacija</th></tr>
+  <tr><td>1</td><td><strong>Zaštita ruta (Middleware)</strong></td><td>NextAuth <code>authorized()</code> callback u <code>src/middleware.ts</code> proverava JWT token i preusmerava neovlašćene korisnike</td></tr>
+  <tr><td>2</td><td><strong>Security Headers</strong></td><td>X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy konfigurisani u <code>next.config.ts</code></td></tr>
+  <tr><td>3</td><td><strong>Rate Limiting</strong></td><td>In-memory implementacija u <code>src/lib/rate-limit.ts</code>. Limiti: auth 5/min, API 30/min, upload 10/min, poruke 20/min</td></tr>
+  <tr><td>4</td><td><strong>Input Validacija (Zod)</strong></td><td>Sve forme i API endpoint-i validiraju input na klijentu (UX) i serveru (bezbednost)</td></tr>
+  <tr><td>5</td><td><strong>SQL Injection zaštita</strong></td><td>Prisma koristi parametrizovane upite — direktno SQL ubacivanje je nemoguće</td></tr>
+  <tr><td>6</td><td><strong>Input Sanitizacija</strong></td><td><code>src/lib/utils/sanitize.ts</code> uklanja HTML tagove, JavaScript protokol i event handlere iz korisničkog unosa</td></tr>
+  <tr><td>7</td><td><strong>Upload Validacija</strong></td><td>Provera MIME tipa, veličine fajla i broja fajlova pre čuvanja</td></tr>
+  <tr><td>8</td><td><strong>Hashovanje lozinki</strong></td><td>bcrypt sa salt rounds 12 — nemoguće dekriptovati u razumnom vremenu</td></tr>
+  <tr><td>9</td><td><strong>CSRF zaštita</strong></td><td>NextAuth automatski generiše CSRF token za sve POST/PUT/DELETE zahteve</td></tr>
+  <tr><td>10</td><td><strong>Privatnost kontakt podataka</strong></td><td>Telefon i email se NIKADA ne prikazuju javno — komunikacija isključivo kroz platformu</td></tr>
+  <tr><td>11</td><td><strong>HTTPS</strong></td><td>SSL/TLS putem Let's Encrypt (auto-renew), HTTP → HTTPS redirect u Nginx-u</td></tr>
+  <tr><td>12</td><td><strong>Firewall (UFW)</strong></td><td>Na VPS-u otvoreni samo portovi 22 (SSH), 80 (HTTP→redirect), 443 (HTTPS), 8080 (phpMyAdmin)</td></tr>
+  <tr><td>13</td><td><strong>Autorizacija na API-ju</strong></td><td>Svaki endpoint proverava sesiju korisnika. Admin endpoint-i dodatno proveravaju <code>isAdmin</code> flag</td></tr>
+  <tr><td>14</td><td><strong>Honeypot (Anti-spam)</strong></td><td>Skriveno polje u kontakt formi koje boti popunjavaju — ako je popunjeno, zahtev se tiho ignoriše</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- 12. DEPLOYMENT -->
+<h1 class="section" id="deployment">12. Deployment i Infrastruktura</h1>
+
+<h2 class="subsection">12.1 Serverska konfiguracija</h2>
+<table>
+  <tr><th>Komponenta</th><th>Detalji</th></tr>
+  <tr><td>VPS provajder</td><td>Hostinger KVM</td></tr>
+  <tr><td>Operativni sistem</td><td>Ubuntu 22.04 LTS</td></tr>
+  <tr><td>IP adresa</td><td>152.239.119.45</td></tr>
+  <tr><td>Hostname</td><td>srv1794962.hstgr.cloud</td></tr>
+  <tr><td>Node.js</td><td>v20.20.2 (LTS)</td></tr>
+  <tr><td>MySQL</td><td>8.x, korisnik: reciklaza_app (samo LOCAL pristup)</td></tr>
+  <tr><td>Nginx</td><td>1.18 — reverse proxy na localhost:3000</td></tr>
+  <tr><td>PM2</td><td>7.x — process manager, boot startup</td></tr>
+  <tr><td>Certbot</td><td>Let's Encrypt, automatski renew, ističe 90 dana</td></tr>
+</table>
+
+<h2 class="subsection">12.2 Nginx konfiguracija</h2>
+<pre><code># /etc/nginx/sites-enabled/reciklaza.rs
+server {
+    listen 80;
+    server_name reciklaza.rs www.reciklaza.rs;
+    return 301 https://$host$request_uri;  # HTTP → HTTPS redirect
+}
+
+server {
+    listen 443 ssl;
+    server_name reciklaza.rs www.reciklaza.rs;
+    client_max_body_size 15M;
+
+    ssl_certificate /etc/letsencrypt/live/reciklaza.rs/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/reciklaza.rs/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+
+<h2 class="subsection">12.3 PM2 upravljanje</h2>
+<pre><code># Pokretanje
+pm2 start npm --name reciklaza -- start
+pm2 save                          # Čuvanje za auto-start pri reboot-u
+pm2 startup systemd               # Konfiguracija systemd servisa
+
+# Upravljanje
+pm2 status                        # Status procesa
+pm2 logs reciklaza                # Live logovi
+pm2 logs reciklaza --lines 100    # Posled 100 linija logova
+pm2 restart reciklaza             # Restart (bez reload .env)
+pm2 stop reciklaza && pm2 delete reciklaza  # Potpuni stop</code></pre>
+
+<h2 class="subsection">12.4 Proces deploy-a (ažuriranja)</h2>
+<p>Pri svakoj novoj verziji koda pokreće se deploy skripta <code>/root/deploy.sh</code>:</p>
+<pre><code>ssh root@152.239.119.45 "/root/deploy.sh"</code></pre>
+<p>Skripta automatski:</p>
+<ol>
+  <li>Povlači izmene sa GitHub repozitorijuma (<code>git pull origin main</code>)</li>
+  <li>Instalira nove zavisnosti (<code>npm install</code>)</li>
+  <li>Primenjuje izmene šeme baze (<code>npx prisma db push</code>)</li>
+  <li>Pravi production build (<code>npm run build</code>)</li>
+  <li>Restartuje aplikaciju sa novim .env varijablama</li>
+</ol>
+
+<div class="callout callout-warning">
+  <strong>Napomena o .env:</strong> Fajl <code>.env</code> se NE čuva u git repozitorijumu. Sve izmene env varijabli na serveru se rade direktno: <code>ssh root@152.239.119.45 "nano /var/www/reciklaza-rs/.env"</code>, nakon čega je potrebno pokrenuti deploy skriptu.
+</div>
+
+<div class="page-break"></div>
+
+<!-- 13. ENV -->
+<h1 class="section" id="env">13. Konfiguracija Okruženja</h1>
+
+<p>Sve env varijable nalaze se u fajlu <code>.env</code> u root direktorijumu projekta. Primer <code>.env.example</code> je dostupan u repozitorijumu.</p>
+
+<table>
+  <tr><th>Varijabla</th><th>Opis</th><th>Primer</th></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>MySQL connection string</td><td><code>mysql://reciklaza_app:lozinka@localhost:3306/reciklaza</code></td></tr>
+  <tr><td><code>AUTH_SECRET</code></td><td>Tajni ključ za JWT (min 32 karaktera, random)</td><td><code>openssl rand -base64 32</code></td></tr>
+  <tr><td><code>AUTH_URL</code></td><td>URL aplikacije (mora biti HTTPS na produkciji)</td><td><code>https://reciklaza.rs</code></td></tr>
+  <tr><td><code>AUTH_TRUST_HOST</code></td><td>Dozvoljava NextAuth-u da veruje proxy headerima</td><td><code>true</code></td></tr>
+  <tr><td><code>RESEND_API_KEY</code></td><td>Resend API ključ za slanje emailova</td><td><code>re_xxxxxxxxxxxx</code></td></tr>
+  <tr><td><code>RESEND_FROM</code></td><td>Sender adresa (mora biti sa verifikovanog domena)</td><td><code>Reciklaza.rs &lt;noreply@reciklaza.rs&gt;</code></td></tr>
+  <tr><td><code>MAX_FILE_SIZE</code></td><td>Max veličina upload-a u bajtovima</td><td><code>5242880</code> (5MB)</td></tr>
+</table>
+
+<!-- 14. RAZVOJ -->
+<h1 class="section" id="razvoj">14. Lokalni Razvoj</h1>
+
+<h2 class="subsection">14.1 Preduslovi</h2>
+<ul>
+  <li>Node.js 20+ (LTS)</li>
+  <li>MySQL 8.x ili MariaDB (lokalno, XAMPP, Docker itd.)</li>
+  <li>Git</li>
+</ul>
+
+<h2 class="subsection">14.2 Pokretanje</h2>
+<pre><code># 1. Kloniranje repozitorijuma
+git clone https://github.com/mdjordjevic97/reciklaza-rs.git
+cd reciklaza-rs
+
+# 2. Instalacija zavisnosti
+npm install
+
+# 3. Kreiranje .env fajla
+cp .env.example .env
+# Uredi .env i popuni DATABASE_URL, AUTH_SECRET, RESEND_API_KEY
+
+# 4. Kreiranje baze i tabela
+npx prisma db push
+
+# 5. Popunjavanje testnim podacima (opcionalno)
+npx tsx prisma/seed.ts
+
+# 6. Pokretanje development servera
+npm run dev
+# → http://localhost:3000</code></pre>
+
+<h2 class="subsection">14.3 Test nalozi (posle seed-a)</h2>
+<table>
+  <tr><th>Email</th><th>Lozinka</th><th>Tip</th><th>Status</th></tr>
+  <tr><td><code>admin@reciklaza.rs</code></td><td>admin123</td><td>Admin</td><td>✅ Aktivan</td></tr>
+  <tr><td><code>ekoreciklaza@test.rs</code></td><td>test1234</td><td>Sakupljač</td><td>✅ Aktivan</td></tr>
+  <tr><td><code>metalservis@test.rs</code></td><td>test1234</td><td>Sakupljač</td><td>✅ Aktivan</td></tr>
+  <tr><td><code>gradnja@test.rs</code></td><td>test1234</td><td>Generator</td><td>✅ Aktivan</td></tr>
+  <tr><td><code>fabrika@test.rs</code></td><td>test1234</td><td>Generator</td><td>✅ Aktivan</td></tr>
+  <tr><td><code>hemind@test.rs</code></td><td>test1234</td><td>Generator</td><td>⏳ Čeka odobrenje</td></tr>
+  <tr><td><code>zeleniput@test.rs</code></td><td>test1234</td><td>Sakupljač</td><td>✅ Aktivan</td></tr>
+</table>
+
+<h2 class="subsection">14.4 Korisne komande</h2>
+<pre><code># Prisma Studio - GUI za bazu
+npx prisma studio
+
+# Prisma generate (regenerisanje klijenta posle izmene šeme)
+npx prisma generate
+
+# Production build
+npm run build
+
+# Pokretanje production build-a lokalno
+npm start
+
+# Lint
+npm run lint</code></pre>
+
+<h2 class="subsection">14.5 GitHub repozitorijum</h2>
+<p>Kod je dostupan na privatnom GitHub repozitorijumu: <code>github.com/mdjordjevic97/reciklaza-rs</code></p>
+<p>Main branch: <code>main</code> — direktno se deplojuje na produkciju putem deploy skripte.</p>
+
+</div><!-- /content -->
+
+<div class="doc-footer">
+  <p><strong>Reciklaža.rs — Tehnička Dokumentacija v1.0</strong></p>
+  <p>PORT 22 Mihailo Đorđević PR · PIB: 111988991 · MB: 65790777</p>
+  <p>Dokument je povjerljiv i namijenjen isključivo tehničkom osoblju.</p>
+</div>
+
+</body>
+</html>
