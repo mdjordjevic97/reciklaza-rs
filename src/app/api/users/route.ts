@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -14,17 +15,24 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') || '1')
   const limit = 12
 
-  const where: Record<string, unknown> = { id: { not: session.user.id } }
-  if (city) where.city = city
-  if (userType) where.userType = userType
-  if (wasteCategory) where.wasteCategories = { contains: wasteCategory }
+  const conditions: Prisma.UserWhereInput[] = [
+    { id: { not: session.user.id } },
+  ]
+
+  if (city) conditions.push({ city })
+  if (userType) conditions.push({ userType: userType as 'GENERATOR' | 'COLLECTOR' })
+  if (wasteCategory) conditions.push({ wasteCategories: { contains: wasteCategory } })
   if (search) {
-    where.OR = [
-      { companyName: { contains: search } },
-      { city: { contains: search } },
-      { pib: { contains: search } },
-    ]
+    conditions.push({
+      OR: [
+        { companyName: { contains: search } },
+        { city: { contains: search } },
+        { pib: { contains: search } },
+      ],
+    })
   }
+
+  const where: Prisma.UserWhereInput = { AND: conditions }
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
