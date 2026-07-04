@@ -2,22 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Save, AlertCircle, CheckCircle, FileText, ExternalLink, ShieldCheck, ShieldX, Clock } from 'lucide-react'
+import { Save, AlertCircle, CheckCircle, FileText, ExternalLink } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
-import Badge from '@/components/ui/Badge'
 import { serbianCities } from '@/lib/constants/serbian-cities'
 import { formatDate } from '@/lib/utils/format'
-
-const permitStatusLabel: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
-  APPROVED: { label: 'Odobrena', variant: 'success' },
-  PENDING:  { label: 'Na čekanju', variant: 'warning' },
-  REJECTED: { label: 'Odbijena', variant: 'danger' },
-}
 
 export default function AdminEditUserPage() {
   const { id } = useParams()
@@ -31,16 +24,11 @@ export default function AdminEditUserPage() {
   useEffect(() => {
     fetch(`/api/admin/users/${id}`)
       .then(r => r.json())
-      .then(data => {
-        setPermits(data.permits || [])
-        setForm(data)
-        setLoading(false)
-      })
+      .then(data => { setPermits(data.permits || []); setForm(data); setLoading(false) })
   }, [id])
 
   const update = (field: string, value: string | boolean) => {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
-    setError(''); setSuccess('')
+    setForm((prev: any) => ({ ...prev, [field]: value })); setError(''); setSuccess('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,17 +39,9 @@ export default function AdminEditUserPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
-    if (res.ok) { setSuccess('Korisnik je ažuriran.') } else { const d = await res.json(); setError(d.error) }
+    if (res.ok) setSuccess('Korisnik je ažuriran.')
+    else { const d = await res.json(); setError(d.error) }
     setSaving(false)
-  }
-
-  const handlePermitStatus = async (permitId: string, status: string) => {
-    await fetch(`/api/admin/permits/${permitId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-    setPermits(prev => prev.map(p => p.id === permitId ? { ...p, status } : p))
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner size={32} /></div>
@@ -70,85 +50,37 @@ export default function AdminEditUserPage() {
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-bold text-gray-900">Izmena korisnika: {form.companyName}</h1>
 
-      {/* Dozvole */}
+      {/* Dozvole — samo pregled */}
       <Card>
         <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <FileText size={18} className="text-primary-600" /> Uploadovane dozvole ({permits.length})
+          <FileText size={18} className="text-primary-600" />
+          Uploadovane dozvole ({permits.length})
         </h2>
         {permits.length === 0 ? (
           <p className="text-sm text-gray-400">Nema uploadovanih dozvola.</p>
         ) : (
-          <div className="space-y-3">
-            {permits.map((permit) => {
-              const statusInfo = permitStatusLabel[permit.status] || { label: permit.status, variant: 'secondary' as const }
+          <div className="space-y-2">
+            {permits.map(permit => {
               const isImage = /\.(jpg|jpeg|png|webp)$/i.test(permit.fileUrl)
               return (
                 <div key={permit.id} className="border border-gray-200 rounded-xl overflow-hidden">
-                  {/* Preview slike ako je slika */}
                   {isImage && (
-                    <img
-                      src={permit.fileUrl}
-                      alt={permit.fileName}
-                      className="w-full max-h-64 object-contain bg-gray-50"
-                    />
+                    <img src={permit.fileUrl} alt={permit.fileName} className="w-full max-h-56 object-contain bg-gray-50" />
                   )}
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-3 flex-wrap">
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-900 text-sm truncate">{permit.fileName}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {permit.permitType} · Uploadovano: {formatDate(permit.uploadedAt)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                        <a
-                          href={permit.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
-                        >
-                          <ExternalLink size={12} /> Otvori
-                        </a>
-                      </div>
+                  <div className="flex items-center gap-3 p-3">
+                    <FileText size={16} className="text-gray-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{permit.fileName}</p>
+                      <p className="text-xs text-gray-400">{permit.permitType} · {formatDate(permit.uploadedAt)}</p>
                     </div>
-                    {/* Akcije odobrenja */}
-                    {permit.status === 'PENDING' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                        <button
-                          onClick={() => handlePermitStatus(permit.id, 'APPROVED')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                        >
-                          <ShieldCheck size={14} /> Odobri dozvolu
-                        </button>
-                        <button
-                          onClick={() => handlePermitStatus(permit.id, 'REJECTED')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                        >
-                          <ShieldX size={14} /> Odbij dozvolu
-                        </button>
-                      </div>
-                    )}
-                    {permit.status === 'APPROVED' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                        <button
-                          onClick={() => handlePermitStatus(permit.id, 'REJECTED')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                        >
-                          <ShieldX size={14} /> Opozovi odobrenje
-                        </button>
-                      </div>
-                    )}
-                    {permit.status === 'REJECTED' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                        <button
-                          onClick={() => handlePermitStatus(permit.id, 'APPROVED')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                        >
-                          <ShieldCheck size={14} /> Odobri ipak
-                        </button>
-                      </div>
-                    )}
+                    <a
+                      href={permit.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors shrink-0"
+                    >
+                      <ExternalLink size={12} /> Otvori
+                    </a>
                   </div>
                 </div>
               )

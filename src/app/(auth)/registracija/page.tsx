@@ -10,6 +10,7 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import { serbianCities } from '@/lib/constants/serbian-cities'
+import { wasteCategories } from '@/lib/constants/waste-categories'
 
 type FormData = {
   userType: 'GENERATOR' | 'COLLECTOR' | ''
@@ -32,6 +33,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [permits, setPermits] = useState<File[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [formData, setFormData] = useState<FormData>({
     userType: '',
     companyName: '',
@@ -44,6 +46,12 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
   })
+
+  const toggleCategory = (value: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(value) ? prev.filter(c => c !== value) : [...prev, value]
+    )
+  }
 
   const update = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -114,6 +122,7 @@ export default function RegisterPage() {
         if (k !== 'confirmPassword' && v) body.append(k, v)
       })
       permits.forEach(f => body.append('permits', f))
+      selectedCategories.forEach(c => body.append('wasteCategories', c))
 
       const res = await fetch('/api/register', { method: 'POST', body })
       const data = await res.json()
@@ -211,6 +220,30 @@ export default function RegisterPage() {
           />
           <Input id="contactPerson" label="Kontakt osoba *" placeholder="Ime i prezime" value={formData.contactPerson} onChange={e => update('contactPerson', e.target.value)} />
           <Input id="phone" label="Telefon (opciono)" placeholder="+381 ..." value={formData.phone} onChange={e => update('phone', e.target.value)} />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Kategorije otpada kojima se bavite
+              <span className="text-gray-400 font-normal ml-1">(opciono)</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {wasteCategories.map(cat => (
+                <label key={cat.value} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                  selectedCategories.includes(cat.value)
+                    ? 'border-primary-500 bg-primary-50'
+                    : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(cat.value)}
+                    onChange={() => toggleCategory(cat.value)}
+                    className="w-4 h-4 text-primary-600 rounded accent-primary-600"
+                  />
+                  <span className="text-sm font-medium text-gray-700">{cat.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

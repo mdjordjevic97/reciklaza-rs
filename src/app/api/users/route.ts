@@ -10,12 +10,14 @@ export async function GET(request: Request) {
   const city = searchParams.get('city')
   const userType = searchParams.get('userType')
   const search = searchParams.get('search')
+  const wasteCategory = searchParams.get('wasteCategory')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = 12
 
   const where: Record<string, unknown> = { id: { not: session.user.id } }
   if (city) where.city = city
   if (userType) where.userType = userType
+  if (wasteCategory) where.wasteCategories = { contains: wasteCategory }
   if (search) {
     where.OR = [
       { companyName: { contains: search } },
@@ -35,6 +37,7 @@ export async function GET(request: Request) {
         avatarUrl: true,
         verified: true,
         bio: true,
+        wasteCategories: true,
         createdAt: true,
         _count: { select: { listings: { where: { status: 'ACTIVE' } } } },
       },

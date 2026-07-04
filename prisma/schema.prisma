@@ -38,6 +38,7 @@ model User {
   userType      UserType
   avatarUrl     String?
   bio           String?  @db.Text
+  wasteCategories String?  @db.Text
   emailVerified Boolean  @default(false)
   verified      Boolean  @default(false)
   isAdmin       Boolean  @default(false)

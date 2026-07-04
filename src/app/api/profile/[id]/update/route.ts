@@ -22,6 +22,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         contactPerson: sanitizeText(body.contactPerson || ''),
         phone: body.phone || null,
         bio: body.bio ? sanitizeText(body.bio) : null,
+        wasteCategories: Array.isArray(body.wasteCategories) ? JSON.stringify(body.wasteCategories) : null,
       },
     })
 

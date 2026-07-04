@@ -26,6 +26,8 @@ export async function POST(request: Request) {
     const phone = formData.get('phone') as string || undefined
     const userType = formData.get('userType') as 'GENERATOR' | 'COLLECTOR'
     const permitFiles = formData.getAll('permits') as File[]
+    const wasteCategoriesRaw = formData.getAll('wasteCategories') as string[]
+    const wasteCategories = wasteCategoriesRaw.length ? JSON.stringify(wasteCategoriesRaw) : null
 
     if (!email || !password || !companyName || !pib || !address || !city || !contactPerson || !userType) {
       return NextResponse.json({ error: 'Sva obavezna polja moraju biti popunjena.' }, { status: 400 })
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
         contactPerson,
         phone,
         userType,
+        wasteCategories,
         emailVerified: false,
         verified: false,
       },
