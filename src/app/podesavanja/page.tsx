@@ -49,7 +49,7 @@ export default function SettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true); setError(''); setMessage('')
-    const res = await fetch(`/api/profile/${session?.user?.id}`, {
+    const res = await fetch(`/api/profile/${session?.user?.id}/update`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, wasteCategories: selectedCategories }),
